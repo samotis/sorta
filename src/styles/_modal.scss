@@ -1,0 +1,259 @@
+// =============================================================================
+// SORTA — Modal Block (Task Add / Edit)
+// =============================================================================
+@use 'variables' as *;
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: $color-bg-overlay;
+  z-index: $z-modal-overlay;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: $space-4;
+  backdrop-filter: blur(4px);
+
+  &.v-enter-active,
+  &.v-leave-active {
+    transition: opacity $transition-base;
+    .modal { transition: opacity $transition-base, transform $transition-base; }
+
+    @media (prefers-reduced-motion: reduce) {
+      transition: none;
+      .modal { transition: none; }
+    }
+  }
+
+  &.v-enter-from,
+  &.v-leave-to {
+    opacity: 0;
+    .modal { opacity: 0; transform: translateY(-10px) scale(0.98); }
+  }
+}
+
+.modal {
+  background: $color-bg-modal;
+  border-radius: $modal-border-radius;
+  box-shadow: $shadow-modal;
+  width: 100%;
+  max-width: 600px;
+  max-height: 90vh;
+  overflow-y: auto;
+
+  scrollbar-width: thin;
+  scrollbar-color: rgba(0,0,0,0.15) transparent;
+  &::-webkit-scrollbar       { width: 4px; }
+  &::-webkit-scrollbar-thumb { background-color: rgba(0,0,0,0.15); border-radius: 2px; }
+
+  // ── Header ──────────────────────────────────────────────────────────────────
+  &__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: $space-6 $space-6 0;
+    margin-bottom: $space-5;
+  }
+
+  &__title {
+    font-family: $font-family-display;
+    font-size: $font-size-xl;
+    font-weight: $font-weight-bold;
+    color: $color-text-dark;
+  }
+
+  &__close-btn {
+    width: 2rem;
+    height: 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: $button-border-radius;
+    background: transparent;
+    transition: background-color $transition-fast;
+
+    &:hover,
+    &:focus-visible {
+      background: #f3f4f6;
+    }
+
+    img {
+      width: 1.25rem;
+      height: 1.25rem;
+    }
+  }
+
+  // ── Body ────────────────────────────────────────────────────────────────────
+  &__body {
+    padding: 0 $space-6 $space-6;
+    display: flex;
+    flex-direction: column;
+    gap: $space-5;
+  }
+
+  &__field {
+    display: flex;
+    flex-direction: column;
+    gap: $space-2;
+  }
+
+  &__label {
+    font-size: $font-size-sm;
+    font-weight: $font-weight-medium;
+    color: $color-text-label;
+  }
+
+  &__input,
+  &__textarea,
+  &__select {
+    width: 100%;
+    padding: $space-3 $space-4;
+    border: 1px solid $color-border-input;
+    border-radius: $input-border-radius;
+    font-family: $font-family-base;
+    font-size: $font-size-base;
+    color: $color-text-dark;
+    background: #f9fafb;
+    transition: border-color $transition-fast, box-shadow $transition-fast;
+    appearance: none;
+
+    &:focus {
+      outline: none;
+      border-color: $color-border-input-focus;
+      box-shadow: 0 0 0 3px rgba(144, 247, 238, 0.22);
+      background: #fff;
+    }
+
+    &--error {
+      border-color: $color-accent-danger;
+      &:focus { box-shadow: 0 0 0 3px rgba(255, 144, 144, 0.22); }
+    }
+  }
+
+  &__textarea {
+    resize: vertical;
+    min-height: 7rem;
+    line-height: $line-height-base;
+  }
+
+  &__select-wrapper {
+    position: relative;
+
+    &::after {
+      content: '';
+      position: absolute;
+      right: $space-4;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 0;
+      height: 0;
+      border-left: 4px solid transparent;
+      border-right: 4px solid transparent;
+      border-top: 5px solid $color-text-muted;
+      pointer-events: none;
+    }
+
+    select { padding-right: $space-8; cursor: pointer; }
+  }
+
+  &__error {
+    font-size: $font-size-xs;
+    color: $color-accent-danger;
+    margin-top: $space-1;
+  }
+
+  // ── Remind Me ────────────────────────────────────────────────────────────────
+  &__remind-toggle {
+    display: flex;
+    align-items: center;
+    gap: $space-3;
+    cursor: pointer;
+    user-select: none;
+
+    input[type="checkbox"] {
+      width: 1.125rem;
+      height: 1.125rem;
+      border: 1.5px solid $color-border-input;
+      border-radius: 4px;
+      appearance: none;
+      background: #f9fafb;
+      cursor: pointer;
+      position: relative;
+      transition: background-color $transition-fast, border-color $transition-fast;
+      flex-shrink: 0;
+
+      &:checked {
+        background: $color-accent-primary;
+        border-color: $color-accent-primary;
+
+        &::after {
+          content: '';
+          position: absolute;
+          inset: 0;
+          background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Cpath d='M2 6l3 3 5-5' stroke='%231E1F34' stroke-width='1.5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center/10px no-repeat;
+        }
+      }
+
+      &:focus-visible {
+        outline: 2px solid $color-accent-primary;
+        outline-offset: 2px;
+      }
+    }
+
+    span {
+      font-size: $font-size-base;
+      font-weight: $font-weight-medium;
+      color: $color-text-label;
+    }
+  }
+
+  &__reminder-fields {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: $space-4;
+    margin-top: $space-1;
+  }
+
+  // ── Actions ──────────────────────────────────────────────────────────────────
+  &__actions {
+    display: flex;
+    gap: $space-3;
+    padding-top: $space-2;
+  }
+
+  &__save-btn {
+    padding: $space-3 $space-6;
+    background: $color-accent-primary;
+    border-radius: $button-border-radius;
+    font-family: $font-family-base;
+    font-size: $font-size-sm;
+    font-weight: $font-weight-bold;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: $color-base;
+    transition: opacity $transition-fast, transform $transition-fast;
+    box-shadow: $shadow-button;
+
+    &:hover,
+    &:focus-visible { opacity: 0.88; }
+    &:active        { transform: scale(0.97); }
+  }
+
+  &__cancel-btn {
+    padding: $space-3 $space-5;
+    background: transparent;
+    border: 1px solid $color-border-input;
+    border-radius: $button-border-radius;
+    font-family: $font-family-base;
+    font-size: $font-size-sm;
+    font-weight: $font-weight-medium;
+    color: $color-text-muted;
+    transition: background-color $transition-fast, border-color $transition-fast;
+
+    &:hover,
+    &:focus-visible {
+      background: #f3f4f6;
+      border-color: #9ca3af;
+    }
+  }
+}

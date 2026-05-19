@@ -1,0 +1,128 @@
+// =============================================================================
+// SORTA — Day Column Block
+// =============================================================================
+@use 'variables' as *;
+
+.day-column {
+  flex-shrink: 0;
+  width: var(--column-width, #{$column-width-default});
+  min-width: $column-width-min;
+  max-width: $column-width-max;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  scroll-snap-align: start;
+
+  @media (min-width: 768px)  { --column-width: #{$column-width-min}; }
+  @media (min-width: 1024px) { --column-width: 290px; }
+  @media (min-width: 1280px) { --column-width: #{$column-width-default}; }
+  @media (min-width: 1600px) { --column-width: 340px; }
+  @media (min-width: 1920px) { --column-width: #{$column-width-max}; }
+
+  // ── Header ──────────────────────────────────────────────────────────────────
+  &__header {
+    flex-shrink: 0;
+    padding-bottom: $space-3;
+  }
+
+  &__date-row {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: $space-3;
+    margin-bottom: $space-1;
+  }
+
+  &__day-name {
+    font-family: $font-family-display;
+    font-size: $font-size-2xl;
+    font-weight: $font-weight-bold;
+    color: $color-text-primary;
+    line-height: $line-height-tight;
+
+    &--today {
+      color: $color-accent-primary;
+    }
+  }
+
+  &__today-badge {
+    font-family: $font-family-display;
+    font-size: $font-size-lg;
+    font-weight: $font-weight-normal;
+    color: $color-accent-primary;
+    opacity: 0.75;
+    margin-left: $space-1;
+  }
+
+  &__date {
+    font-size: $font-size-sm;
+    color: $color-text-secondary;
+    margin-bottom: $space-3;
+  }
+
+  &__hours {
+    flex-shrink: 0;
+    font-size: $font-size-xs;
+    font-weight: $font-weight-semibold;
+    letter-spacing: 0.02em;
+    color: $color-text-secondary;
+    margin-top: 0.3rem; // Align baseline with the large day name
+
+    &--over-budget {
+      color: $color-accent-danger;
+      background: rgba(255, 144, 144, 0.15);
+      padding: $space-1 $space-2;
+      border-radius: $badge-border-radius;
+    }
+  }
+
+  // ── Progress bar ────────────────────────────────────────────────────────────
+  &__progress-bar {
+    height: 3px;
+    background: $color-progress-track;
+    border-radius: 2px;
+    overflow: hidden;
+
+    &-fill {
+      height: 100%;
+      background: $color-progress-fill;
+      border-radius: 2px;
+      transition: width $transition-slow;
+
+      @media (prefers-reduced-motion: reduce) { transition: none; }
+    }
+  }
+
+  &__divider {
+    height: 1px;
+    background: $color-border;
+    margin: $space-3 0;
+    flex-shrink: 0;
+  }
+
+  // ── Task list ───────────────────────────────────────────────────────────────
+  &__task-list {
+    flex: 1;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: $space-3;
+    padding-bottom: $space-8;
+    min-height: 80px; // Always droppable even when empty
+
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 255, 0.12) transparent;
+
+    &::-webkit-scrollbar      { width: 4px; }
+    &::-webkit-scrollbar-track { background: transparent; }
+    &::-webkit-scrollbar-thumb {
+      background-color: rgba(255, 255, 255, 0.12);
+      border-radius: 2px;
+    }
+  }
+
+  &__task-list--drag-over {
+    background: rgba(144, 247, 238, 0.04);
+    border-radius: $card-border-radius;
+  }
+}

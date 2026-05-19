@@ -1,0 +1,13 @@
+// =============================================================================
+// SORTA — Main Stylesheet Entry Point
+// =============================================================================
+// Each partial @use 'variables' as * independently (required with sass @use).
+// loadPaths in vite.config.js makes 'variables' resolvable everywhere.
+
+@use 'base';
+@use 'sidebar';
+@use 'calendar';
+@use 'day-column';
+@use 'task-card';
+@use 'modal';
+@use 'reminder-dialog';

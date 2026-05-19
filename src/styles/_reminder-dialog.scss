@@ -1,0 +1,76 @@
+// =============================================================================
+// SORTA — Reminder Dialog Block
+// =============================================================================
+@use 'variables' as *;
+
+.reminder-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: $z-reminder;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding-top: $space-8;
+  pointer-events: none;
+
+  &.v-enter-active,
+  &.v-leave-active {
+    .reminder-dialog { transition: opacity $transition-base, transform $transition-base; }
+    @media (prefers-reduced-motion: reduce) { .reminder-dialog { transition: none; } }
+  }
+
+  &.v-enter-from,
+  &.v-leave-to {
+    .reminder-dialog { opacity: 0; transform: translateY(-16px); }
+  }
+}
+
+.reminder-dialog {
+  pointer-events: all;
+  background: $color-bg-modal;
+  border-radius: $modal-border-radius;
+  box-shadow: $shadow-modal;
+  width: 100%;
+  max-width: 400px;
+  padding: $space-5 $space-6;
+  border-left: 4px solid $color-accent-primary;
+
+  &__eyebrow {
+    font-size: $font-size-xs;
+    font-weight: $font-weight-bold;
+    text-transform: uppercase;
+    letter-spacing: 0.10em;
+    color: $color-accent-primary;
+    margin-bottom: $space-2;
+  }
+
+  &__title {
+    font-family: $font-family-display;
+    font-size: $font-size-lg;
+    font-weight: $font-weight-bold;
+    color: $color-text-dark;
+    margin-bottom: $space-1;
+    word-break: break-word;
+  }
+
+  &__description {
+    font-size: $font-size-sm;
+    color: $color-text-muted;
+    margin-bottom: $space-4;
+    word-break: break-word;
+  }
+
+  &__dismiss-btn {
+    padding: $space-2 $space-4;
+    background: $color-accent-primary;
+    border-radius: $button-border-radius;
+    font-size: $font-size-sm;
+    font-weight: $font-weight-bold;
+    color: $color-base;
+    letter-spacing: 0.04em;
+    transition: opacity $transition-fast;
+
+    &:hover,
+    &:focus-visible { opacity: 0.88; }
+  }
+}

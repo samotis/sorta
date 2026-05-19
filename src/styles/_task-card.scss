@@ -1,0 +1,181 @@
+// =============================================================================
+// SORTA — Task Card Block
+// =============================================================================
+@use 'variables' as *;
+
+.task-card {
+  position: relative;
+  background: $color-bg-card;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid $color-border-card;
+  border-radius: $card-border-radius;
+  padding: $space-4;
+  box-shadow: $shadow-card;
+  cursor: grab;
+  transition:
+    background-color $transition-base,
+    border-color $transition-base,
+    box-shadow $transition-base;
+
+  &:hover,
+  &:focus-within {
+    background: $color-bg-card-hover;
+    border-color: rgba(255, 255, 255, 0.35);
+  }
+
+  &:active {
+    cursor: grabbing;
+  }
+
+  // Completed state — slightly dimmed, title struck through
+  &--completed {
+    opacity: 0.70;
+
+    .task-card__title {
+      text-decoration: line-through;
+      color: $color-text-secondary;
+    }
+  }
+
+  // SortableJS ghost placeholder while dragging
+  &--ghost {
+    opacity: 0.30;
+    background: rgba(144, 247, 238, 0.10) !important;
+    border: 1px dashed $color-accent-primary !important;
+    box-shadow: none !important;
+  }
+
+  // ── Body ────────────────────────────────────────────────────────────────────
+  &__body {
+    display: flex;
+    gap: $space-3;
+    align-items: flex-start;
+  }
+
+  // ── Checkmark button ────────────────────────────────────────────────────────
+  &__check-btn {
+    flex-shrink: 0;
+    width: 1.75rem;
+    height: 1.75rem;
+    background: transparent;
+    border: none;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 0.0625rem;
+    border-radius: 50%;
+    transition: opacity $transition-fast, transform $transition-fast;
+
+    &:hover,
+    &:focus-visible {
+      opacity: 0.80;
+      transform: scale(1.08);
+    }
+
+    img {
+      width: 1.75rem;
+      height: 1.75rem;
+    }
+  }
+
+  // ── Content ──────────────────────────────────────────────────────────────────
+  &__content {
+    flex: 1;
+    min-width: 0;
+  }
+
+  &__title {
+    font-size: $font-size-base;
+    font-weight: $font-weight-semibold;
+    color: $color-text-primary;
+    line-height: $line-height-tight;
+    margin-bottom: $space-2;
+    word-break: break-word;
+  }
+
+  &__description {
+    font-size: $font-size-sm;
+    color: $color-text-secondary;
+    line-height: $line-height-base;
+    margin-bottom: $space-3;
+    word-break: break-word;
+    white-space: pre-wrap;
+  }
+
+  // ── Footer ───────────────────────────────────────────────────────────────────
+  &__footer {
+    display: flex;
+    align-items: center;
+    gap: $space-2;
+    margin-top: $space-1;
+  }
+
+  &__hours-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: $space-1 $space-3;
+    background: rgba(255, 255, 255, 0.12);
+    border-radius: $badge-border-radius;
+    font-size: $font-size-xs;
+    font-weight: $font-weight-medium;
+    color: $color-text-secondary;
+    line-height: 1;
+    letter-spacing: 0.02em;
+  }
+
+  &__reminder-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: $color-accent-primary;
+    flex-shrink: 0;
+  }
+
+  // ── Hover action buttons ─────────────────────────────────────────────────────
+  &__actions {
+    position: absolute;
+    bottom: $space-3;
+    right: $space-3;
+    display: flex;
+    gap: $space-1;
+    opacity: 0;
+    transition: opacity $transition-fast;
+
+    .task-card:hover &,
+    .task-card:focus-within & {
+      opacity: 1;
+    }
+  }
+
+  &__action-btn {
+    width: 1.75rem;
+    height: 1.75rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: $button-border-radius;
+    background: rgba(255, 255, 255, 0.12);
+    transition: background-color $transition-fast;
+
+    &:hover,
+    &:focus-visible {
+      background: rgba(255, 255, 255, 0.22);
+    }
+
+    img {
+      width: 1rem;
+      height: 1rem;
+    }
+  }
+}
+
+// SortableJS global drag classes
+.sortable-drag  { opacity: 0 !important; }
+
+.sortable-ghost {
+  opacity: 0.30;
+  background: rgba(144, 247, 238, 0.10) !important;
+  border: 1px dashed $color-accent-primary !important;
+}
