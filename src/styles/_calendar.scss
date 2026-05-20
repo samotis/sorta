@@ -19,6 +19,17 @@
     scroll-behavior: smooth;
     gap: $column-gap;
     padding: $space-10 0 0 0;
+    scroll-padding-left: $space-8;
+
+    // Pseudo-elements create reliable left/right gutters in a flex scroll container.
+    // padding-right collapses in most browsers, so ::after is the safe alternative.
+    &::before,
+    &::after {
+      content: '';
+      display: block;
+      min-width: $space-8;
+      flex-shrink: 0;
+    }
 
     scrollbar-width: none;
     &::-webkit-scrollbar { display: none; }

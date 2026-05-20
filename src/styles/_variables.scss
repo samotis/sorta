@@ -70,11 +70,11 @@ $space-12: 50px;
 $sidebar-width:         calc(25% - 15px);
 // $column-width-min:      260px;
 // $column-width-max:      380px;
-$column-width-one:      calc(100%);
-$column-width-two:      calc(50% - 15px);
-$column-width-default:  calc(33.3333% - 20px);
-$column-width-four:     calc(25% - 22.5px);
-$column-width-five:     calc(25% - 24px);
+$column-width-one:      calc(100% - 60px);
+$column-width-two:      calc(50% - 45px);
+$column-width-default:  calc(33.3333% - 40px);
+$column-width-four:     calc(25% - 37.5px);
+$column-width-five:     calc(20% - 36px);
 $column-gap:            30px;
 $header-height:         3.5rem;
 
