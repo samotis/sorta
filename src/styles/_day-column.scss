@@ -5,24 +5,24 @@
 
 .day-column {
   flex-shrink: 0;
-  width: var(--column-width, #{$column-width-default});
-  min-width: $column-width-min;
-  max-width: $column-width-max;
+  width: var(--column-width, #{$column-width-one});
+  // min-width: $column-width-min;
+  // max-width: $column-width-max;
   height: 100%;
   display: flex;
   flex-direction: column;
   scroll-snap-align: start;
 
-  @media (min-width: 768px)  { --column-width: #{$column-width-min}; }
-  @media (min-width: 1024px) { --column-width: 290px; }
-  @media (min-width: 1280px) { --column-width: #{$column-width-default}; }
-  @media (min-width: 1600px) { --column-width: 340px; }
-  @media (min-width: 1920px) { --column-width: #{$column-width-max}; }
+  @media (min-width: 768px)  { --column-width: #{$column-width-one}; }
+  @media (min-width: 1024px) { --column-width: #{$column-width-two}; }
+  @media (min-width: 1400px) { --column-width: #{$column-width-default}; }
+  @media (min-width: 1800px) { --column-width: #{$column-width-four}; }
+  @media (min-width: 1920px) { --column-width: #{$column-width-five}; }
 
   // ── Header ──────────────────────────────────────────────────────────────────
   &__header {
     flex-shrink: 0;
-    padding-bottom: $space-3;
+    padding-bottom: 35px;
   }
 
   &__date-row {
