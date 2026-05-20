@@ -55,22 +55,21 @@
   }
 
   &__date {
-    font-size: $font-size-sm;
-    color: $color-text-secondary;
+    font-size: $font-size-base;
+    color: $color-text-primary;
     margin-bottom: $space-3;
   }
 
   &__hours {
     flex-shrink: 0;
-    font-size: $font-size-xs;
+    font-size: $font-size-base;
     font-weight: $font-weight-semibold;
-    letter-spacing: 0.02em;
-    color: $color-text-secondary;
+    color: $color-text-primary;
     margin-top: 0.3rem; // Align baseline with the large day name
 
     &--over-budget {
-      color: $color-accent-danger;
-      background: rgba(255, 144, 144, 0.15);
+      color: $color-progress-track;
+      background: $color-accent-danger;
       padding: $space-1 $space-2;
       border-radius: $badge-border-radius;
     }

@@ -27,8 +27,6 @@
       </div>
     </header>
 
-    <div class="day-column__divider" role="separator"></div>
-
     <!-- Draggable task list -->
     <VueDraggable
       class="day-column__task-list"

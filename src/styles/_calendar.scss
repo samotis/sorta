@@ -18,7 +18,7 @@
     scroll-snap-type: x mandatory;
     scroll-behavior: smooth;
     gap: $column-gap;
-    padding: $space-6 $space-6 $space-6 $space-4;
+    padding: $space-10 $space-8 0 $space-8;
 
     scrollbar-width: none;
     &::-webkit-scrollbar { display: none; }
@@ -37,37 +37,45 @@
     align-items: center;
     gap: $space-2;
     z-index: $z-nav-controls;
+    background: rgba(255, 255, 255, 0.90);
+    border-radius: 12px;
+    padding: 10px;
+    box-shadow: $shadow-card;
   }
 
   // Shared base for all three nav buttons
   &__today-btn,
   &__nav-btn {
-    height: 2.25rem;
+    height: 40px;
     border-radius: $button-border-radius;
-    background: rgba(255, 255, 255, 0.90);
     backdrop-filter: blur(8px);
     -webkit-backdrop-filter: blur(8px);
-    box-shadow: $shadow-button;
     transition: background-color $transition-fast, transform $transition-fast;
 
     &:hover,
     &:focus-visible {
-      background: rgba(255, 255, 255, 1);
+      background: $color-accent-danger;
     }
 
-    &:active {
-      transform: scale(0.96);
-    }
+    // &:active {
+    //   transform: scale(0.96);
+    // }
   }
 
   &__today-btn {
     padding: 0 $space-5;
     font-family: $font-family-base;
-    font-size: $font-size-sm;
-    font-weight: $font-weight-bold;
+    font-size: $font-size-base;
+    font-weight: $font-weight-medium;
     letter-spacing: 0.06em;
     text-transform: uppercase;
     color: $color-base;
+    border: solid 1px rgba(0,0,0,0.2);
+
+    &:hover,
+    &:focus-visible {
+      background: rgba(255, 255, 255, 1);
+    }
   }
 
   &__nav-btn {

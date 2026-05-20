@@ -232,7 +232,7 @@
     text-transform: uppercase;
     color: $color-base;
     transition: opacity $transition-fast, transform $transition-fast;
-    box-shadow: $shadow-button;
+    // box-shadow: $shadow-button;
 
     &:hover,
     &:focus-visible { opacity: 0.88; }
