@@ -46,13 +46,22 @@
   &::-webkit-scrollbar       { width: 4px; }
   &::-webkit-scrollbar-thumb { background-color: rgba(0,0,0,0.15); border-radius: 2px; }
 
+  @media (min-width: 1024px) {
+    max-width: 800px;
+  }
+
   // ── Header ──────────────────────────────────────────────────────────────────
   &__header {
+    position: relative;
     display: flex;
     align-items: center;
     justify-content: space-between;
     padding: $space-6 $space-6 0;
     margin-bottom: $space-5;
+
+    @media (min-width: 1024px) {
+      padding: $space-12 $space-13 0;
+    }
   }
 
   &__title {
@@ -60,9 +69,16 @@
     font-size: $font-size-xl;
     font-weight: $font-weight-bold;
     color: $color-text-dark;
+
+    @media (min-width: 1024px) {
+      font-size: $font-size-2xl;
+    }
   }
 
   &__close-btn {
+    position: absolute;
+    top: 20px;
+    right: 20px;
     width: 2rem;
     height: 2rem;
     display: flex;
@@ -72,14 +88,10 @@
     background: transparent;
     transition: background-color $transition-fast;
 
-    &:hover,
-    &:focus-visible {
-      background: #f3f4f6;
-    }
-
     img {
-      width: 1.25rem;
-      height: 1.25rem;
+      width: 32px;
+      height: 32px;
+      object-fit: contain;
     }
   }
 
@@ -89,6 +101,10 @@
     display: flex;
     flex-direction: column;
     gap: $space-5;
+
+    @media (min-width: 1024px) {
+      padding: 0 $space-13 $space-12;
+    }
   }
 
   &__field {
@@ -107,6 +123,7 @@
   &__textarea,
   &__select {
     width: 100%;
+    min-height: 50px;
     padding: $space-3 $space-4;
     border: 1px solid $color-border-input;
     border-radius: $input-border-radius;
@@ -120,13 +137,17 @@
     &:focus {
       outline: none;
       border-color: $color-border-input-focus;
-      box-shadow: 0 0 0 3px rgba(144, 247, 238, 0.22);
+      box-shadow: 0 0 0 3px $color-border-input-focus;
       background: #fff;
     }
 
     &--error {
       border-color: $color-accent-danger;
-      &:focus { box-shadow: 0 0 0 3px rgba(255, 144, 144, 0.22); }
+      box-shadow: 0 0 0 3px $color-accent-danger; 
+      &:focus { 
+        border-color: $color-border-input-focus;
+        box-shadow: 0 0 0 3px $color-border-input-focus;
+      }
     }
   }
 
@@ -157,8 +178,8 @@
   }
 
   &__error {
-    font-size: $font-size-xs;
-    color: $color-accent-danger;
+    font-size: $font-size-sm;
+    color: $color-text-label;
     margin-top: $space-1;
   }
 
@@ -222,6 +243,8 @@
   }
 
   &__save-btn {
+    min-height: 50px;
+    min-width: 120px;
     padding: $space-3 $space-6;
     background: $color-accent-primary;
     border-radius: $button-border-radius;
@@ -231,15 +254,11 @@
     letter-spacing: 0.06em;
     text-transform: uppercase;
     color: $color-base;
-    transition: opacity $transition-fast, transform $transition-fast;
-    // box-shadow: $shadow-button;
-
-    &:hover,
-    &:focus-visible { opacity: 0.88; }
-    &:active        { transform: scale(0.97); }
   }
 
   &__cancel-btn {
+    min-height: 50px;
+    min-width: 120px;
     padding: $space-3 $space-5;
     background: transparent;
     border: 1px solid $color-border-input;

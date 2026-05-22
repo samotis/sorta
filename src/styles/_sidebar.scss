@@ -4,11 +4,13 @@
 @use 'variables' as *;
 
 .sidebar {
-  padding: 42px 15px 0px 15px;
+  padding: 37px 15px 0px 15px;
+  margin-top: 20px;
   flex-shrink: 0;
   width: $sidebar-width;
   min-width: 300px;
-  height: 100vh;
+  height: calc(100vh - 20px);
+  border-radius: 0 20px 0 0;
   background-color: $color-bg-sidebar;
   display: flex;
   flex-direction: column;
@@ -30,7 +32,7 @@
 
   &__logo {
     // padding: $space-6 $space-6 $space-5;
-    padding-bottom: 42px;
+    padding-bottom: 37px;
     flex-shrink: 0;
     text-align: center;
 

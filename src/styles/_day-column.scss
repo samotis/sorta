@@ -17,7 +17,7 @@
   @media (min-width: 1024px) { --column-width: #{$column-width-two}; }
   @media (min-width: 1400px) { --column-width: #{$column-width-default}; }
   @media (min-width: 1800px) { --column-width: #{$column-width-four}; }
-  @media (min-width: 1920px) { --column-width: #{$column-width-five}; }
+  @media (min-width: 2200px) { --column-width: #{$column-width-five}; }
 
   // ── Header ──────────────────────────────────────────────────────────────────
   &__header {

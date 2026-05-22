@@ -10,7 +10,7 @@
   display: flex;
   align-items: flex-start;
   justify-content: center;
-  padding-top: $space-8;
+  padding-top: $space-5;
   pointer-events: none;
 
   &.v-enter-active,
@@ -31,16 +31,15 @@
   border-radius: $modal-border-radius;
   box-shadow: $shadow-modal;
   width: 100%;
-  max-width: 400px;
-  padding: $space-5 $space-6;
-  border-left: 4px solid $color-accent-primary;
+  max-width: 500px;
+  padding: $space-8;
 
   &__eyebrow {
-    font-size: $font-size-xs;
+    font-size: $font-size-sm;
     font-weight: $font-weight-bold;
     text-transform: uppercase;
     letter-spacing: 0.10em;
-    color: $color-accent-primary;
+    color: $color-base;
     margin-bottom: $space-2;
   }
 
@@ -61,16 +60,17 @@
   }
 
   &__dismiss-btn {
-    padding: $space-2 $space-4;
+    min-height: 50px;
+    min-width: 120px;
+    padding: $space-3 $space-6;
     background: $color-accent-primary;
     border-radius: $button-border-radius;
+    font-family: $font-family-base;
     font-size: $font-size-sm;
     font-weight: $font-weight-bold;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
     color: $color-base;
-    letter-spacing: 0.04em;
-    transition: opacity $transition-fast;
-
-    &:hover,
-    &:focus-visible { opacity: 0.88; }
+    margin-top: $space-4;
   }
 }
