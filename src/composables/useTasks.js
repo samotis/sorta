@@ -56,6 +56,11 @@ function nextPosition(date) {
   return list.length > 0 ? Math.max(...list.map(t => t.position)) + 1 : 0
 }
 
+function firstPosition() {
+  const list = unscheduledTasks()
+  return list.length > 0 ? Math.min(...list.map(t => t.position)) - 1 : 0
+}
+
 // ─── Persistence ─────────────────────────────────────────────────────────────
 
 function loadFromStorage() {
@@ -101,7 +106,7 @@ export function useTasks() {
       estimatedHours: clampHours(estimatedHours),
       completed: false,
       scheduledDate: scheduledDate || null,
-      position: nextPosition(scheduledDate || null),
+      position: scheduledDate ? nextPosition(scheduledDate) : firstPosition(),
       remindAt: remindAt || null,
       reminderDismissed: false,
       createdAt: new Date().toISOString(),
