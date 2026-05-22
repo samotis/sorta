@@ -59,7 +59,7 @@
       <button
         class="task-card__action-btn"
         aria-label="Delete task"
-        @click.stop="emit('delete', task.id)"
+        @click.stop="emit('delete', task)"
       >
         <img src="@/assets/close.svg" alt="" aria-hidden="true" />
       </button>

@@ -46,7 +46,7 @@
           :task="task"
           @toggle-complete="toggleComplete"
           @edit="openEditModal"
-          @delete="deleteTask"
+          @delete="requestDelete"
         />
       </div>
     </VueDraggable>
@@ -64,6 +64,7 @@
 import { ref, computed, watchEffect } from 'vue'
 import { VueDraggable } from 'vue-draggable-plus'
 import { useTasks } from '@/composables/useTasks'
+import { useConfirmDelete } from '@/composables/useConfirmDelete'
 import { formatDayName, formatShortDate, todayString } from '@/composables/useCalendar'
 import TaskCard from './TaskCard.vue'
 import TaskModal from './TaskModal.vue'
@@ -77,7 +78,8 @@ const props = defineProps({
 
 const DAILY_BUDGET = 8
 
-const { tasks, toggleComplete, deleteTask, updateTask, syncList, totalHoursForDate, completedHoursForDate } = useTasks()
+const { tasks, toggleComplete, updateTask, syncList, totalHoursForDate, completedHoursForDate } = useTasks()
+const { requestDelete } = useConfirmDelete()
 
 const today     = todayString()
 const isToday   = computed(() => props.date === today)

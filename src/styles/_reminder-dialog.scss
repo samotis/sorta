@@ -74,3 +74,51 @@
     margin-top: $space-4;
   }
 }
+
+.confirm-dialog {
+  &__actions {
+    display: flex;
+    gap: $space-3;
+    margin-top: $space-4;
+  }
+
+  &__cancel-btn {
+    min-height: 50px;
+    min-width: 120px;
+    padding: $space-3 $space-5;
+    background: transparent;
+    border: 1px solid $color-border-input;
+    border-radius: $button-border-radius;
+    font-family: $font-family-base;
+    font-size: $font-size-sm;
+    font-weight: $font-weight-medium;
+    color: $color-text-muted;
+    transition: background-color $transition-fast, border-color $transition-fast;
+
+    &:hover,
+    &:focus-visible {
+      background: #f3f4f6;
+      border-color: #9ca3af;
+    }
+  }
+
+  &__delete-btn {
+    min-height: 50px;
+    min-width: 120px;
+    padding: $space-3 $space-6;
+    background: $color-accent-danger;
+    border-radius: $button-border-radius;
+    font-family: $font-family-base;
+    font-size: $font-size-sm;
+    font-weight: $font-weight-bold;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: $color-bg-modal;
+    transition: opacity $transition-fast;
+
+    &:hover,
+    &:focus-visible {
+      opacity: 0.85;
+    }
+  }
+}
