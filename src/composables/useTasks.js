@@ -9,6 +9,7 @@
  *   estimatedHours:      Number   (e.g. 0.25 … 8.0)
  *   completed:           Boolean
  *   scheduledDate:       String|null  ('YYYY-MM-DD' or null = unscheduled)
+ *   isBacklog:           Boolean  (true = in the sidebar backlog section)
  *   position:            Number   (sort order within its list)
  *   remindAt:            String|null  (ISO 8601 datetime)
  *   reminderDismissed:   Boolean
@@ -47,7 +48,13 @@ function tasksForDate(date) {
 
 function unscheduledTasks() {
   return tasks.value
-    .filter(t => t.scheduledDate === null)
+    .filter(t => t.scheduledDate === null && !t.isBacklog)
+    .sort((a, b) => a.position - b.position)
+}
+
+function backlogTasks() {
+  return tasks.value
+    .filter(t => t.scheduledDate === null && t.isBacklog)
     .sort((a, b) => a.position - b.position)
 }
 
@@ -106,6 +113,7 @@ export function useTasks() {
       estimatedHours: clampHours(estimatedHours),
       completed: false,
       scheduledDate: scheduledDate || null,
+      isBacklog: false,
       position: scheduledDate ? nextPosition(scheduledDate) : firstPosition(),
       remindAt: remindAt || null,
       reminderDismissed: false,
@@ -151,6 +159,17 @@ export function useTasks() {
       const t = tasks.value.find(t => t.id === task.id)
       if (!t) return
       t.scheduledDate = newDate
+      t.isBacklog = false
+      t.position = index
+    })
+  }
+
+  function syncBacklogList(newList) {
+    newList.forEach((task, index) => {
+      const t = tasks.value.find(t => t.id === task.id)
+      if (!t) return
+      t.scheduledDate = null
+      t.isBacklog = true
       t.position = index
     })
   }
@@ -182,6 +201,7 @@ export function useTasks() {
     deleteTask,
     toggleComplete,
     syncList,
+    syncBacklogList,
     getTasksForDate,
     getUnscheduledTasks,
     totalHoursForDate,

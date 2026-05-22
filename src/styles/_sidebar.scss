@@ -82,20 +82,17 @@
     letter-spacing: 0.10em;
     text-transform: uppercase;
     color: $color-text-primary;
-    flex-shrink: 0;
   }
 
-  &__task-list {
+  &__scroll-area {
     flex: 1;
     overflow-y: auto;
-    padding: 0 0 $space-12; // Extra bottom pad so cards aren't hidden behind the fade
+    padding-bottom: $space-12; // Extra bottom pad so cards aren't hidden behind the fade
     display: flex;
     flex-direction: column;
-    gap: $space-3;
     position: relative;
     z-index: 1; // Below the fade overlay
 
-    // Thin custom scrollbar
     scrollbar-width: thin;
     scrollbar-color: rgba(255, 255, 255, 0.15) transparent;
 
@@ -107,11 +104,68 @@
     }
   }
 
+  &__task-list {
+    display: flex;
+    flex-direction: column;
+    gap: $space-3;
+  }
+
+  &__backlog-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    padding: $space-6 0;
+    margin-top: $space-6;
+    background: transparent;
+    border-top: 1px solid $color-border;
+    font-family: $font-family-base;
+    font-size: $font-size-base;
+    font-weight: $font-weight-semibold;
+    letter-spacing: 0.10em;
+    text-transform: uppercase;
+    color: $color-text-primary;
+    cursor: pointer;
+    transition: color $transition-fast;
+
+    &:hover,
+    &:focus-visible {
+      color: $color-accent-primary;
+    }
+  }
+
+  &__caret {
+    flex-shrink: 0;
+    width: 0;
+    height: 0;
+    border-left: 4px solid transparent;
+    border-right: 4px solid transparent;
+    border-top: 5px solid currentColor;
+    transition: transform $transition-fast;
+
+    &--open {
+      transform: rotate(180deg);
+    }
+  }
+
+  &__backlog-list {
+    display: flex;
+    flex-direction: column;
+    gap: $space-3;
+    min-height: 60px; // Provides a visible drop target when empty
+  }
+
   &__empty {
     text-align: center;
     padding: $space-8 $space-4;
     color: $color-text-secondary;
     font-size: $font-size-sm;
     line-height: $line-height-base;
+
+    &--backlog {
+      padding: $space-4;
+      border: 1.5px dashed $color-border;
+      border-radius: $button-border-radius;
+    }
   }
 }
