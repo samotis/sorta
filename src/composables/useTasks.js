@@ -143,6 +143,11 @@ export function useTasks() {
     tasks.value.splice(idx, 1)
   }
 
+  function deleteAllTasks() {
+    tasks.value = []
+    localStorage.removeItem('sorta_backlog_open')
+  }
+
   function toggleComplete(id) {
     const task = tasks.value.find(t => t.id === id)
     if (!task) return
@@ -199,6 +204,7 @@ export function useTasks() {
     addTask,
     updateTask,
     deleteTask,
+    deleteAllTasks,
     toggleComplete,
     syncList,
     syncBacklogList,

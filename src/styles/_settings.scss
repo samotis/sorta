@@ -1,0 +1,177 @@
+// =============================================================================
+// SORTA — Settings Modal Block
+// =============================================================================
+@use 'variables' as *;
+
+.settings-overlay {
+  position: fixed;
+  inset: 0;
+  background: transparent;
+  z-index: $z-modal-overlay;
+
+  &.v-enter-active,
+  &.v-leave-active {
+    .settings-modal { transition: opacity $transition-base, transform $transition-base; }
+    @media (prefers-reduced-motion: reduce) {
+      .settings-modal { transition: none; }
+    }
+  }
+
+  &.v-enter-from,
+  &.v-leave-to {
+    .settings-modal { opacity: 0; transform: translateY(10px); }
+  }
+}
+
+.settings-modal {
+  position: fixed;
+  bottom: calc(#{$space-6} + 60px + 10px);
+  right: $space-6;
+  width: 760px;
+  max-width: calc(100vw - 340px);
+  max-height: calc(100vh - 110px);
+  background: $color-bg-sidebar;
+  border-radius: $modal-border-radius;
+  overflow-y: auto;
+
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.15) transparent;
+  &::-webkit-scrollbar       { width: 4px; }
+  &::-webkit-scrollbar-thumb { background-color: rgba(255, 255, 255, 0.15); border-radius: 2px; }
+
+  // ── Header ──────────────────────────────────────────────────────────────────
+  &__header {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: $space-10 $space-10 $space-6;
+  }
+
+  &__title {
+    font-family: $font-family-display;
+    font-size: $font-size-2xl;
+    font-weight: $font-weight-bold;
+    color: $color-text-primary;
+  }
+
+  &__close-btn {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    flex-shrink: 0;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform $transition-fast;
+
+    img {
+      width: 32px;
+      height: 32px;
+      object-fit: contain;
+    }
+
+    &:hover,
+    &:focus-visible {
+      transform: scale(1.1);
+    }
+  }
+
+  // ── Sections ─────────────────────────────────────────────────────────────────
+  &__section {
+    padding: 0 $space-10 $space-8;
+    display: flex;
+    flex-direction: column;
+    gap: $space-3;
+
+    &:last-child {
+      padding-bottom: $space-10;
+    }
+  }
+
+  &__section-label {
+    padding: 0;
+    font-size: $font-size-base;
+    font-weight: $font-weight-semibold;
+    letter-spacing: 0.10em;
+    text-transform: uppercase;
+    color: $color-text-primary;
+  }
+
+  // ── Background option thumbnails ─────────────────────────────────────────────
+  &__bg-options {
+    display: flex;
+    flex-wrap: wrap;
+    gap: $space-4;
+    padding: $space-3;
+    border: 1px solid $color-border;
+    border-radius: $section-border-radius;
+  }
+
+  &__bg-option {
+    flex: 0 1 auto;
+    width: 120px;
+    aspect-ratio: 4 / 3;
+    border-radius: $card-border-radius;
+    overflow: hidden;
+    cursor: pointer;
+    transition: box-shadow $transition-fast, opacity $transition-fast;
+
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    &:hover {
+      box-shadow: 0px 0px 0px 3px $color-accent-primary;
+    }
+
+    &--selected {
+      box-shadow: 0px 0px 0px 3px $color-accent-primary;
+    }
+  }
+
+  // ── Data management rows ──────────────────────────────────────────────────────
+  &__data-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: $space-6;
+    padding: $space-5;
+    border: 1px solid $color-border;
+    border-radius: $section-border-radius;
+  }
+
+  &__row-title {
+    font-size: $font-size-md;
+    font-weight: $font-weight-medium;
+    color: $color-text-primary;
+    margin-bottom: 0;
+  }
+
+  &__row-desc {
+    font-size: $font-size-sm;
+    color: $color-text-secondary;
+    line-height: $line-height-base;
+  }
+
+  &__delete-btn {
+    flex-shrink: 0;
+    min-height: 40px;
+    min-width: 120px;
+    padding: $space-2 $space-5;
+    background: $color-accent-danger;
+    border-radius: $button-border-radius;
+    font-family: $font-family-base;
+    font-size: $font-size-sm;
+    font-weight: $font-weight-bold;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: $color-text-dark;
+    transition: opacity $transition-fast;
+  }
+}

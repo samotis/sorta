@@ -21,6 +21,15 @@
     <!-- Navigation controls -->
     <nav class="calendar__nav" aria-label="Calendar navigation">
       <button
+        class="calendar__settings-btn"
+        :class="{ 'calendar__settings-btn--active': settingsOpen }"
+        aria-label="Open settings"
+        :aria-expanded="settingsOpen.toString()"
+        @click="settingsOpen = true"
+      >
+        <img src="@/assets/gear.svg" alt="" aria-hidden="true" />
+      </button>
+      <button
         class="calendar__today-btn"
         @click="scrollToToday"
         aria-label="Jump to today"
@@ -43,13 +52,16 @@
       </button>
     </nav>
 
+    <SettingsModal v-model="settingsOpen" />
+
   </main>
 </template>
 
 <script setup>
-import { onMounted } from 'vue'
+import { ref, onMounted } from 'vue'
 import { useCalendar } from '@/composables/useCalendar'
 import DayColumn from './DayColumn.vue'
+import SettingsModal from './SettingsModal.vue'
 
 const {
   days,
@@ -59,6 +71,8 @@ const {
   scrollForward,
   scrollBack,
 } = useCalendar()
+
+const settingsOpen = ref(false)
 
 onMounted(() => {
   scrollToToday()
