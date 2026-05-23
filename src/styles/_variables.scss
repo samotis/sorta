@@ -86,6 +86,9 @@ $button-border-radius:  6px;
 $input-border-radius:   6px;
 $section-border-radius: 12px;
 
+// Noise texture (URL-encoded SVG feTurbulence — used for grainy gradient bg and its thumbnail)
+$noise-svg: "data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.3' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E";
+
 // Shadows
 $shadow-card:           0 0 20px rgba(0, 0, 0, 0.30);
 $shadow-card-hover:     0 0 30px rgba(0, 0, 0, 0.50);

@@ -33,6 +33,23 @@ body {
   overflow: hidden;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+
+  &[data-bg="solid"] {
+    background: #343555;
+  }
+
+  &[data-bg="image"] {
+    background-image: var(--bg-image);
+    background-size: cover;
+    background-position: center;
+  }
+
+  &[data-bg="grainy"] {
+    background-image: url("#{$noise-svg}"), $gradient-app;
+    background-repeat: repeat, no-repeat;
+    background-size: 256px 256px, 100% 100%;
+    background-blend-mode: multiply;
+  }
 }
 
 #app {

@@ -27,7 +27,10 @@
                 v-for="bg in backgrounds"
                 :key="bg.id"
                 class="settings-modal__bg-option"
-                :class="{ 'settings-modal__bg-option--selected': selectedBg === bg.id }"
+                :class="{
+                  'settings-modal__bg-option--selected': selectedBg === bg.id,
+                  [`settings-modal__bg-option--${bg.id}`]: true
+                }"
                 :aria-label="bg.label"
                 :aria-pressed="selectedBg === bg.id"
                 @click="selectedBg = bg.id"
@@ -80,9 +83,10 @@ const { selectedBg } = useBackground()
 const modalEl = ref(null)
 
 const backgrounds = [
-  { id: 'gradient', label: 'Gradient background', thumb: bckgndFadeThumb },
-  { id: 'solid',    label: 'Solid background',    thumb: bckgndSolidThumb },
-  { id: 'image',    label: 'Image background',    thumb: bckgndImageThumb },
+  { id: 'gradient', label: 'Gradient background',      thumb: bckgndFadeThumb },
+  { id: 'grainy',   label: 'Grainy gradient',           thumb: bckgndFadeThumb },
+  { id: 'solid',    label: 'Solid background',          thumb: bckgndSolidThumb },
+  { id: 'image',    label: 'Image background',          thumb: bckgndImageThumb },
 ]
 
 function close() {

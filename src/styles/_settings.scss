@@ -117,6 +117,7 @@
     border-radius: $card-border-radius;
     overflow: hidden;
     cursor: pointer;
+    position: relative;
     transition: box-shadow $transition-fast, opacity $transition-fast;
 
     img {
@@ -132,6 +133,18 @@
 
     &--selected {
       box-shadow: 0px 0px 0px 3px $color-accent-primary;
+    }
+
+    // Grain overlay on the grainy thumbnail
+    &--grainy::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image: url("#{$noise-svg}");
+      background-size: 256px 256px;
+      mix-blend-mode: soft-light;
+      mix-blend-mode: multiply;
+      pointer-events: none;
     }
   }
 
