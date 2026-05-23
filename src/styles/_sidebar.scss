@@ -51,7 +51,7 @@
     margin: 0 0 $space-6;
     padding: $space-4;
     background: transparent;
-    border: 1.5px dashed $color-border;
+    border: 2px dashed $color-border;
     border-radius: $button-border-radius;
     color: $color-text-primary;
     font-family: $font-family-display;
@@ -115,7 +115,7 @@
     align-items: center;
     justify-content: space-between;
     width: 100%;
-    padding: $space-6 0;
+    padding: $space-6 $space-4 $space-6 0;
     margin-top: $space-6;
     background: transparent;
     border-top: 1px solid $color-border;
@@ -136,15 +136,16 @@
 
   &__caret {
     flex-shrink: 0;
-    width: 0;
-    height: 0;
-    border-left: 4px solid transparent;
-    border-right: 4px solid transparent;
-    border-top: 5px solid currentColor;
+    width: 8px;
+    height: 8px;
+    border: solid 2px currentColor;
+    border-bottom: none;
+    border-left: none;
+    transform: translateY(-1px) rotate(135deg);
     transition: transform $transition-fast;
 
     &--open {
-      transform: rotate(180deg);
+      transform: translateY(1px) rotate(315deg);
     }
   }
 

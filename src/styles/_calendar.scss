@@ -54,9 +54,10 @@
     box-shadow: $shadow-card;
   }
 
-  // Shared base for all three nav buttons
+  // Shared base for all nav buttons
   &__today-btn,
-  &__nav-btn {
+  &__nav-btn,
+  &__settings-btn {
     height: 40px;
     border-radius: $button-border-radius;
     backdrop-filter: blur(8px);
@@ -98,6 +99,22 @@
     img {
       width: 1.125rem;
       height: 1.125rem;
+    }
+  }
+
+  &__settings-btn {
+    width: 2.25rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    img {
+      width: 1.25rem;
+      height: 1.25rem;
+    }
+
+    &--active {
+      background: $color-accent-danger;
     }
   }
 }
