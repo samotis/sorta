@@ -1,19 +1,19 @@
 <template>
   <article
     class="task-card"
-    :class="{ 'task-card--completed': task.completed }"
-    :aria-label="`Task: ${task.title}${task.completed ? ' (completed)' : ''}`"
+    :class="{ 'task-card--completed': displayCompleted }"
+    :aria-label="`Task: ${task.title}${displayCompleted ? ' (completed)' : ''}`"
   >
     <div class="task-card__body">
 
       <!-- Complete toggle -->
       <button
         class="task-card__check-btn"
-        :aria-label="task.completed ? 'Mark task incomplete' : 'Mark task complete'"
+        :aria-label="displayCompleted ? 'Mark task incomplete' : 'Mark task complete'"
         @click.stop="emit('toggle-complete', task.id)"
       >
         <img
-          v-if="task.completed"
+          v-if="displayCompleted"
           src="@/assets/check-solid.svg"
           alt=""
           aria-hidden="true"
@@ -44,6 +44,13 @@
             aria-label="Reminder set"
             alt=""
           />
+          <img
+            v-if="task.repeat"
+            src="@/assets/repeat.svg"
+            class="task-card__repeat-icon"
+            :aria-label="`Repeats ${task.repeat}`"
+            alt=""
+          />
         </div>
       </div>
     </div>
@@ -69,14 +76,25 @@
 </template>
 
 <script setup>
-defineProps({
+import { computed } from 'vue'
+
+const props = defineProps({
   task: {
     type: Object,
     required: true,
   },
+  // Overrides task.completed for repeating task context. Pass undefined to use task.completed.
+  isCompleted: {
+    type: Boolean,
+    default: undefined,
+  },
 })
 
 const emit = defineEmits(['toggle-complete', 'edit', 'delete'])
+
+const displayCompleted = computed(() =>
+  props.isCompleted !== undefined ? props.isCompleted : props.task.completed
+)
 
 function formatHours(h) {
   return `${Number(h).toFixed(2)} hrs`

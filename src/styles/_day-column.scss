@@ -120,8 +120,30 @@
     }
   }
 
-  &__task-list--drag-over {
-    background: rgba(144, 247, 238, 0.04);
-    border-radius: $card-border-radius;
+  // Repeating tasks from other anchor dates — non-draggable section
+  &__repeating-section {
+    display: flex;
+    flex-direction: column;
+    gap: $space-3;
+
+    // Subtle bottom separator to distinguish from anchored tasks below
+    &:not(:empty) {
+      border-bottom: 1px solid $color-border;
+      padding-bottom: $space-3;
+      margin-bottom: $space-3;
+    }
+
+    .task-card {
+      background: $color-bg-card-hover;
+      background: rgba(144,247,238,0.15);
+      border-color: rgba(144,247,238,0.4);
+      cursor: auto;
+
+      &:hover,
+      &:focus-within {
+        background: rgba(144,247,238,0.15);
+      }
+    }
+
   }
 }

@@ -7,13 +7,15 @@
  *   title:               String
  *   description:         String
  *   estimatedHours:      Number   (e.g. 0.25 … 8.0)
- *   completed:           Boolean
+ *   completed:           Boolean  (for non-repeating tasks; for repeating = series cancelled)
  *   scheduledDate:       String|null  ('YYYY-MM-DD' or null = unscheduled)
  *   isBacklog:           Boolean  (true = in the sidebar backlog section)
  *   position:            Number   (sort order within its list)
  *   remindAt:            String|null  (ISO 8601 datetime)
  *   reminderDismissed:   Boolean
  *   createdAt:           String   (ISO 8601 datetime)
+ *   repeat:              String|null  ('daily' | 'weekdays' | 'weekly' | null)
+ *   completedDates:      String[]  (['YYYY-MM-DD', …] for per-day completion on repeating tasks)
  * }
  */
 
@@ -38,6 +40,31 @@ function clampHours(value) {
   const n = parseFloat(value)
   if (isNaN(n)) return 1
   return Math.min(Math.max(Math.round(n * 4) / 4, 0.25), 8)
+}
+
+function _dayOfWeek(dateStr) {
+  const [y, m, d] = dateStr.split('-').map(Number)
+  return new Date(y, m - 1, d).getDay() // 0=Sun … 6=Sat
+}
+
+export function taskOccursOn(task, dateStr) {
+  if (!task.scheduledDate) return false
+  if (!task.repeat) return task.scheduledDate === dateStr
+  if (dateStr < task.scheduledDate) return false
+  if (task.repeat === 'daily') return true
+  if (task.repeat === 'weekdays') {
+    const dow = _dayOfWeek(dateStr)
+    return dow !== 0 && dow !== 6
+  }
+  if (task.repeat === 'weekly') {
+    return _dayOfWeek(dateStr) === _dayOfWeek(task.scheduledDate)
+  }
+  return false
+}
+
+export function isCompletedOnDate(task, dateStr) {
+  if (!task.repeat) return task.completed
+  return Array.isArray(task.completedDates) && task.completedDates.includes(dateStr)
 }
 
 function tasksForDate(date) {
@@ -70,13 +97,19 @@ function firstPosition() {
 
 // ─── Persistence ─────────────────────────────────────────────────────────────
 
+function migrateTask(t) {
+  if (!('repeat' in t)) t.repeat = null
+  if (!('completedDates' in t)) t.completedDates = []
+  return t
+}
+
 function loadFromStorage() {
   try {
     const raw = localStorage.getItem(STORAGE_KEY)
     if (!raw) return []
     const parsed = JSON.parse(raw)
     if (!Array.isArray(parsed)) return []
-    return parsed
+    return parsed.map(migrateTask)
   } catch {
     return []
   }
@@ -102,7 +135,7 @@ export function useTasks() {
 
   // ── CRUD ────────────────────────────────────────────────────────────────────
 
-  function addTask({ title, description = '', estimatedHours = 1, scheduledDate = null, remindAt = null }) {
+  function addTask({ title, description = '', estimatedHours = 1, scheduledDate = null, remindAt = null, repeat = null }) {
     const cleanTitle = sanitize(title)
     if (!cleanTitle) return null
 
@@ -118,6 +151,8 @@ export function useTasks() {
       remindAt: remindAt || null,
       reminderDismissed: false,
       createdAt: new Date().toISOString(),
+      repeat: repeat || null,
+      completedDates: [],
     }
 
     tasks.value.push(task)
@@ -133,6 +168,12 @@ export function useTasks() {
     if ('title' in updates)       updates.title       = sanitize(updates.title)
     if ('description' in updates) updates.description = sanitize(updates.description)
     if ('estimatedHours' in updates) updates.estimatedHours = clampHours(updates.estimatedHours)
+
+    // Clear per-day completions when repeat mode is removed
+    const current = tasks.value[idx]
+    if ('repeat' in updates && !updates.repeat && current.repeat) {
+      updates.completedDates = []
+    }
 
     tasks.value[idx] = { ...tasks.value[idx], ...updates }
   }
@@ -152,6 +193,18 @@ export function useTasks() {
     const task = tasks.value.find(t => t.id === id)
     if (!task) return
     task.completed = !task.completed
+  }
+
+  function toggleCompleteOnDate(id, date) {
+    const task = tasks.value.find(t => t.id === id)
+    if (!task) return
+    if (!Array.isArray(task.completedDates)) task.completedDates = []
+    const idx = task.completedDates.indexOf(date)
+    if (idx === -1) {
+      task.completedDates.push(date)
+    } else {
+      task.completedDates.splice(idx, 1)
+    }
   }
 
   // ── Drag-and-drop mutation ──────────────────────────────────────────────────
@@ -190,13 +243,21 @@ export function useTasks() {
   }
 
   function totalHoursForDate(date) {
-    return tasksForDate(date).reduce((sum, t) => sum + t.estimatedHours, 0)
+    return tasks.value
+      .filter(t => taskOccursOn(t, date))
+      .reduce((sum, t) => sum + t.estimatedHours, 0)
   }
 
   function completedHoursForDate(date) {
-    return tasksForDate(date)
-      .filter(t => t.completed)
+    return tasks.value
+      .filter(t => taskOccursOn(t, date) && isCompletedOnDate(t, date))
       .reduce((sum, t) => sum + t.estimatedHours, 0)
+  }
+
+  function importTasks(newTasks) {
+    for (const task of newTasks) {
+      tasks.value.push(task)
+    }
   }
 
   return {
@@ -206,11 +267,13 @@ export function useTasks() {
     deleteTask,
     deleteAllTasks,
     toggleComplete,
+    toggleCompleteOnDate,
     syncList,
     syncBacklogList,
     getTasksForDate,
     getUnscheduledTasks,
     totalHoursForDate,
     completedHoursForDate,
+    importTasks,
   }
 }

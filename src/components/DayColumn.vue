@@ -27,10 +27,27 @@
       </div>
     </header>
 
-    <!-- Draggable task list -->
+    <!-- Repeating tasks from other anchor dates -->
+    <div
+      v-if="repeatingInstances.length > 0"
+      class="day-column__repeating-section"
+      role="list"
+      :aria-label="`Repeating tasks for ${dayName}`"
+    >
+      <div v-for="task in repeatingInstances" :key="task.id" role="listitem">
+        <TaskCard
+          :task="task"
+          :is-completed="isCompletedOnDate(task, date)"
+          @toggle-complete="handleToggleComplete"
+          @edit="openEditModal"
+          @delete="requestDelete"
+        />
+      </div>
+    </div>
+
+    <!-- Draggable task list (tasks anchored to this date) -->
     <VueDraggable
       class="day-column__task-list"
-      :class="{ 'day-column__task-list--drag-over': isDragOver }"
       role="list"
       :aria-label="`Tasks for ${dayName}`"
       v-model="localList"
@@ -44,7 +61,8 @@
       <div v-for="task in localList" :key="task.id" role="listitem">
         <TaskCard
           :task="task"
-          @toggle-complete="toggleComplete"
+          :is-completed="task.repeat ? isCompletedOnDate(task, date) : undefined"
+          @toggle-complete="handleToggleComplete"
           @edit="openEditModal"
           @delete="requestDelete"
         />
@@ -63,7 +81,7 @@
 <script setup>
 import { ref, computed, watchEffect } from 'vue'
 import { VueDraggable } from 'vue-draggable-plus'
-import { useTasks } from '@/composables/useTasks'
+import { useTasks, taskOccursOn, isCompletedOnDate } from '@/composables/useTasks'
 import { useConfirmDelete } from '@/composables/useConfirmDelete'
 import { formatDayName, formatShortDate, todayString } from '@/composables/useCalendar'
 import TaskCard from './TaskCard.vue'
@@ -78,13 +96,24 @@ const props = defineProps({
 
 const DAILY_BUDGET = 8
 
-const { tasks, toggleComplete, updateTask, syncList, totalHoursForDate, completedHoursForDate } = useTasks()
+const {
+  tasks,
+  toggleComplete,
+  toggleCompleteOnDate,
+  updateTask,
+  syncList,
+  totalHoursForDate,
+  completedHoursForDate,
+} = useTasks()
 const { requestDelete } = useConfirmDelete()
 
 const today     = todayString()
 const isToday   = computed(() => props.date === today)
 const dayName   = computed(() => formatDayName(props.date))
 const shortDate = computed(() => formatShortDate(props.date))
+
+// Expose date as a non-reactive alias for template use
+const date = props.date
 
 const totalHours     = computed(() => totalHoursForDate(props.date))
 const completedHours = computed(() => completedHoursForDate(props.date))
@@ -94,20 +123,31 @@ const progressPct    = computed(() => {
   return Math.min(Math.round((completedHours.value / totalHours.value) * 100), 100)
 })
 
-const isDragOver = ref(false)
-
-// Plain ref so VueDraggable can mutate it directly.
-// watchEffect keeps it in sync whenever tasks change externally.
+// Non-repeating tasks anchored to this date — managed by VueDraggable
 const localList = ref([])
 watchEffect(() => {
   localList.value = tasks.value
-    .filter(t => t.scheduledDate === props.date)
+    .filter(t => t.scheduledDate === props.date && !t.repeat)
     .sort((a, b) => a.position - b.position)
 })
 
-// Called after VueDraggable updates localList via v-model (reorder or cross-list drop).
+// All repeating tasks that occur on this date — read-only display above the draggable list
+const repeatingInstances = computed(() => {
+  return tasks.value.filter(t => t.repeat && taskOccursOn(t, props.date))
+})
+
 function onListChange() {
   syncList(localList.value, props.date)
+}
+
+function handleToggleComplete(taskId) {
+  const task = tasks.value.find(t => t.id === taskId)
+  if (!task) return
+  if (task.repeat) {
+    toggleCompleteOnDate(taskId, props.date)
+  } else {
+    toggleComplete(taskId)
+  }
 }
 
 // ── Modal ─────────────────────────────────────────────────────────────────────
