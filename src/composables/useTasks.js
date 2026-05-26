@@ -261,13 +261,13 @@ export function useTasks() {
 
   function totalHoursForDate(date) {
     return tasks.value
-      .filter(t => taskOccursOn(t, date))
+      .filter(t => taskOccursOn(t, date) && !t.isLife)
       .reduce((sum, t) => sum + t.estimatedHours, 0)
   }
 
   function completedHoursForDate(date) {
     return tasks.value
-      .filter(t => taskOccursOn(t, date) && isCompletedOnDate(t, date))
+      .filter(t => taskOccursOn(t, date) && !t.isLife && isCompletedOnDate(t, date))
       .reduce((sum, t) => sum + t.estimatedHours, 0)
   }
 
