@@ -6,8 +6,8 @@
 .task-card {
   position: relative;
   background: $color-bg-card;
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
   border: 1px solid $color-border-card;
   border-radius: $card-border-radius;
   padding: $space-4 $space-4 $space-6;
