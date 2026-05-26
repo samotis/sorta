@@ -169,21 +169,25 @@ const hourOptions = [
   { value: 2.00, label: '2.00 hrs' },
   { value: 2.50, label: '2.50 hrs' },
   { value: 3.00, label: '3.00 hrs' },
+  { value: 3.50, label: '3.50 hrs' },
   { value: 4.00, label: '4.00 hrs' },
+  { value: 5.00, label: '5.00 hrs' },
   { value: 6.00, label: '6.00 hrs' },
+  { value: 7.00, label: '7.00 hrs' },
   { value: 8.00, label: '8.00 hrs' },
 ]
 
-// ── Time options (every 30 min) ───────────────────────────────────────────────
+// ── Time options (every 15 min, 7:00am – 7:00pm) ─────────────────────────────
 const timeOptions = (() => {
   const opts = []
-  for (let h = 0; h < 24; h++) {
-    for (const m of [0, 30]) {
+  for (let h = 7; h <= 19; h++) {
+    for (const m of [0, 15, 30, 45]) {
+      if (h === 19 && m > 0) break
       const hh = String(h).padStart(2, '0')
       const mm = String(m).padStart(2, '0')
       const value = `${hh}:${mm}`
       const period = h < 12 ? 'am' : 'pm'
-      const displayH = h === 0 ? 12 : h > 12 ? h - 12 : h
+      const displayH = h > 12 ? h - 12 : h
       const label = `${displayH}:${mm}${period}`
       opts.push({ value, label })
     }
@@ -197,7 +201,7 @@ const defaultForm = () => ({
   description:    '',
   estimatedHours: 1.00,
   hasReminder:    false,
-  remindDate:     '',
+  remindDate:     todayString(),
   remindTime:     '09:00',
 })
 
@@ -214,7 +218,7 @@ function populateForm(task) {
     form.remindDate = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`
     form.remindTime = `${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`
   } else {
-    form.remindDate = ''
+    form.remindDate = todayString()
     form.remindTime = '09:00'
   }
   errors.title = ''

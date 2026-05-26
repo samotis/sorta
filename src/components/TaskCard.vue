@@ -37,12 +37,13 @@
           >
             {{ formatHours(task.estimatedHours) }}
           </span>
-          <span
+          <img
             v-if="task.remindAt && !task.reminderDismissed"
+            src="@/assets/bell.svg"
             class="task-card__reminder-dot"
             aria-label="Reminder set"
-            role="img"
-          ></span>
+            alt=""
+          />
         </div>
       </div>
     </div>
