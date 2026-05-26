@@ -256,7 +256,11 @@ export function useTasks() {
 
   function importTasks(newTasks) {
     for (const task of newTasks) {
-      tasks.value.push(task)
+      tasks.value.push({
+        ...task,
+        title:       sanitize(task.title),
+        description: sanitize(task.description),
+      })
     }
   }
 
