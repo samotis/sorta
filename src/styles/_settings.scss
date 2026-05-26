@@ -209,6 +209,36 @@
     transition: opacity $transition-fast;
   }
 
+  &__toggle {
+    flex-shrink: 0;
+    width: 44px;
+    height: 24px;
+    border-radius: 12px;
+    background: $color-border;
+    position: relative;
+    transition: background $transition-fast;
+
+    &--on {
+      background: $color-accent-primary;
+    }
+  }
+
+  &__toggle-knob {
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: $color-text-primary;
+    transition: transform $transition-fast;
+
+    .settings-modal__toggle--on & {
+      transform: translateX(20px);
+      background: $color-text-dark;
+    }
+  }
+
   &__file-input {
     display: none;
   }

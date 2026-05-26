@@ -40,6 +40,27 @@
             </div>
           </section>
 
+          <!-- Display Options -->
+          <section class="settings-modal__section" aria-labelledby="display-options-label">
+            <h2 class="settings-modal__section-label" id="display-options-label">Display Options</h2>
+
+            <div class="settings-modal__data-row">
+              <div>
+                <p class="settings-modal__row-title">Work/Life balance</p>
+                <p class="settings-modal__row-desc">Adds a collapsible Life section below each day's work items for personal tasks.</p>
+              </div>
+              <button
+                class="settings-modal__toggle"
+                :class="{ 'settings-modal__toggle--on': isLifeVisible }"
+                :aria-pressed="isLifeVisible"
+                aria-label="Toggle Life sections visibility"
+                @click="toggleLifeVisible"
+              >
+                <span class="settings-modal__toggle-knob"></span>
+              </button>
+            </div>
+          </section>
+
           <!-- Data Management -->
           <section class="settings-modal__section" aria-labelledby="data-mgmt-label">
             <h2 class="settings-modal__section-label" id="data-mgmt-label">Data Management</h2>
@@ -102,6 +123,7 @@ import { ref, watch, nextTick } from 'vue'
 import { useConfirmDeleteAll } from '@/composables/useConfirmDeleteAll'
 import { useBackground } from '@/composables/useBackground'
 import { useTasks } from '@/composables/useTasks'
+import { useLifeSection } from '@/composables/useLifeSection'
 import { downloadICS, importTasksFromICS } from '@/utils/ics'
 import bckgndFadeThumb   from '@/assets/bckgnd-fade01-thumb.jpg'
 import bckgndSolidThumb  from '@/assets/bckgnd-solid01-thumb.jpg'
@@ -119,6 +141,7 @@ const emit = defineEmits(['update:modelValue'])
 const { requestDeleteAll } = useConfirmDeleteAll()
 const { selectedBg } = useBackground()
 const { tasks, importTasks } = useTasks()
+const { isLifeVisible, toggleLifeVisible } = useLifeSection()
 
 const modalEl    = ref(null)
 const fileInputRef = ref(null)

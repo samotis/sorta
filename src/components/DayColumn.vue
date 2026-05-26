@@ -72,6 +72,46 @@
         </div>
       </VueDraggable>
 
+      <!-- Life section -->
+      <template v-if="isLifeVisible">
+        <button
+          class="day-column__life-toggle"
+          :aria-expanded="isLifeOpen.toString()"
+          aria-controls="life-list"
+          @click="toggleLifeOpen"
+        >
+          Life
+          <span class="day-column__life-caret" :class="{ 'day-column__life-caret--open': isLifeOpen }" aria-hidden="true"></span>
+        </button>
+
+        <VueDraggable
+          id="life-list"
+          class="day-column__life-list"
+          role="list"
+          :aria-label="`Life tasks for ${dayName}`"
+          v-show="isLifeOpen"
+          v-model="localLifeList"
+          group="tasks"
+          ghost-class="task-card--ghost"
+          drag-class="sortable-drag"
+          :animation="150"
+          @update="onLifeChange"
+          @add="onLifeChange"
+        >
+          <div v-for="task in localLifeList" :key="task.id" role="listitem">
+            <TaskCard
+              :task="task"
+              @toggle-complete="handleToggleComplete"
+              @edit="openEditModal"
+              @delete="requestDelete"
+            />
+          </div>
+          <p v-if="localLifeList.length === 0" class="day-column__life-empty">
+            Drag non-work tasks here.
+          </p>
+        </VueDraggable>
+      </template>
+
     </div>
 
     <!-- Edit modal (per-column instance) -->
@@ -89,6 +129,7 @@ import { VueDraggable } from 'vue-draggable-plus'
 import { useTasks, taskOccursOn, isCompletedOnDate } from '@/composables/useTasks'
 import { useConfirmDelete } from '@/composables/useConfirmDelete'
 import { formatDayName, formatShortDate, todayString } from '@/composables/useCalendar'
+import { useLifeSection } from '@/composables/useLifeSection'
 import TaskCard from './TaskCard.vue'
 import TaskModal from './TaskModal.vue'
 
@@ -107,9 +148,11 @@ const {
   toggleCompleteOnDate,
   updateTask,
   syncList,
+  syncLifeList,
   totalHoursForDate,
   completedHoursForDate,
 } = useTasks()
+const { isLifeOpen, isLifeVisible, toggleLifeOpen } = useLifeSection()
 const { requestDelete } = useConfirmDelete()
 
 const today     = todayString()
@@ -128,11 +171,19 @@ const progressPct    = computed(() => {
   return Math.min(Math.round((completedHours.value / totalHours.value) * 100), 100)
 })
 
-// Non-repeating tasks anchored to this date — managed by VueDraggable
+// Non-repeating, non-life tasks anchored to this date — managed by VueDraggable
 const localList = ref([])
 watchEffect(() => {
   localList.value = tasks.value
-    .filter(t => t.scheduledDate === props.date && !t.repeat)
+    .filter(t => t.scheduledDate === props.date && !t.repeat && !t.isLife)
+    .sort((a, b) => a.position - b.position)
+})
+
+// Life tasks anchored to this date — managed by VueDraggable in the Life section
+const localLifeList = ref([])
+watchEffect(() => {
+  localLifeList.value = tasks.value
+    .filter(t => t.scheduledDate === props.date && !t.repeat && t.isLife)
     .sort((a, b) => a.position - b.position)
 })
 
@@ -143,6 +194,10 @@ const repeatingInstances = computed(() => {
 
 function onListChange() {
   syncList(localList.value, props.date)
+}
+
+function onLifeChange() {
+  syncLifeList(localLifeList.value, props.date)
 }
 
 function handleToggleComplete(taskId) {
