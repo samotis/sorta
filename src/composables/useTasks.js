@@ -16,6 +16,7 @@
  *   createdAt:           String   (ISO 8601 datetime)
  *   repeat:              String|null  ('daily' | 'weekdays' | 'weekly' | null)
  *   completedDates:      String[]  (['YYYY-MM-DD', …] for per-day completion on repeating tasks)
+ *   isLife:              Boolean  (true = in the Life section of a day column)
  * }
  */
 
@@ -100,6 +101,7 @@ function firstPosition() {
 function migrateTask(t) {
   if (!('repeat' in t)) t.repeat = null
   if (!('completedDates' in t)) t.completedDates = []
+  if (!('isLife' in t)) t.isLife = false
   return t
 }
 
@@ -147,6 +149,7 @@ export function useTasks() {
       completed: false,
       scheduledDate: scheduledDate || null,
       isBacklog: false,
+      isLife: false,
       position: scheduledDate ? nextPosition(scheduledDate) : firstPosition(),
       remindAt: remindAt || null,
       reminderDismissed: false,
@@ -187,6 +190,7 @@ export function useTasks() {
   function deleteAllTasks() {
     tasks.value = []
     localStorage.removeItem('sorta_backlog_open')
+    localStorage.removeItem('sorta_life_open')
   }
 
   function toggleComplete(id) {
@@ -218,6 +222,7 @@ export function useTasks() {
       if (!t) return
       t.scheduledDate = newDate
       t.isBacklog = false
+      t.isLife = false
       t.position = index
     })
   }
@@ -228,6 +233,18 @@ export function useTasks() {
       if (!t) return
       t.scheduledDate = null
       t.isBacklog = true
+      t.isLife = false
+      t.position = index
+    })
+  }
+
+  function syncLifeList(newList, newDate) {
+    newList.forEach((task, index) => {
+      const t = tasks.value.find(t => t.id === task.id)
+      if (!t) return
+      t.scheduledDate = newDate
+      t.isBacklog = false
+      t.isLife = true
       t.position = index
     })
   }
@@ -274,6 +291,7 @@ export function useTasks() {
     toggleCompleteOnDate,
     syncList,
     syncBacklogList,
+    syncLifeList,
     getTasksForDate,
     getUnscheduledTasks,
     totalHoursForDate,

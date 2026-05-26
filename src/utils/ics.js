@@ -96,6 +96,7 @@ function taskToVEVENT(task) {
     foldLine(`CREATED:${toICSDateTime(task.createdAt)}`),
     foldLine(`X-SORTA-HOURS:${task.estimatedHours}`),
     foldLine(`X-SORTA-BACKLOG:${task.isBacklog ? 'TRUE' : 'FALSE'}`),
+    foldLine(`X-SORTA-LIFE:${task.isLife ? 'TRUE' : 'FALSE'}`),
     foldLine(`X-SORTA-POSITION:${task.position}`),
   ]
 
@@ -244,6 +245,7 @@ function parseVEVENT(vevent, existingUids) {
 
   const hours = clampHours(vevent.getFirstPropertyValue('x-sorta-hours') ?? 1)
   const isBacklog = (vevent.getFirstPropertyValue('x-sorta-backlog') || '').toUpperCase() === 'TRUE'
+  const isLife    = (vevent.getFirstPropertyValue('x-sorta-life')    || '').toUpperCase() === 'TRUE'
   const position = parseInt(vevent.getFirstPropertyValue('x-sorta-position') || '0', 10) || 0
 
   const rrule = vevent.getFirstPropertyValue('rrule')
@@ -263,6 +265,7 @@ function parseVEVENT(vevent, existingUids) {
     completed,
     scheduledDate,
     isBacklog,
+    isLife,
     position,
     repeat,
     completedDates,
@@ -303,6 +306,7 @@ function parseVTODO(vtodo, existingUids) {
     completed,
     scheduledDate: null,
     isBacklog,
+    isLife: false,
     position,
     repeat: null,
     completedDates: [],

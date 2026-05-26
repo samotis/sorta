@@ -123,7 +123,66 @@
     display: flex;
     flex-direction: column;
     gap: $space-3;
+    flex-shrink: 0;
     min-height: 80px; // Always droppable even when empty
+  }
+
+  // ── Life section ────────────────────────────────────────────────────────────
+  &__life-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    padding: $space-6 $space-4 $space-6 0;
+    margin-top: $space-3;
+    background: transparent;
+    border-top: 1px solid $color-border;
+    font-family: $font-family-base;
+    font-size: $font-size-base;
+    font-weight: $font-weight-semibold;
+    letter-spacing: 0.10em;
+    text-transform: uppercase;
+    color: $color-text-primary;
+    cursor: pointer;
+    transition: color $transition-fast;
+
+    &:hover,
+    &:focus-visible {
+      color: $color-accent-primary;
+    }
+  }
+
+  &__life-caret {
+    flex-shrink: 0;
+    width: 8px;
+    height: 8px;
+    border: solid 2px currentColor;
+    border-bottom: none;
+    border-left: none;
+    transform: translateY(-1px) rotate(135deg);
+    transition: transform $transition-fast;
+
+    &--open {
+      transform: translateY(1px) rotate(315deg);
+    }
+  }
+
+  &__life-list {
+    display: flex;
+    flex-direction: column;
+    gap: $space-3;
+    min-height: 60px;
+    padding-bottom: $space-3;
+  }
+
+  &__life-empty {
+    text-align: center;
+    padding: $space-4;
+    color: $color-text-secondary;
+    font-size: $font-size-sm;
+    line-height: $line-height-base;
+    border: 1.5px dashed $color-border;
+    border-radius: $button-border-radius;
   }
 
   // Repeating tasks from other anchor dates — non-draggable section
