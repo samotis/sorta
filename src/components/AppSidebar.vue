@@ -125,7 +125,8 @@ watchEffect(() => {
     .sort((a, b) => a.position - b.position)
 })
 
-const isBacklogOpen = ref(localStorage.getItem(BACKLOG_OPEN_KEY) === 'true')
+const _storedBacklog = localStorage.getItem(BACKLOG_OPEN_KEY)
+const isBacklogOpen = ref(_storedBacklog === null ? true : _storedBacklog === 'true')
 
 function toggleBacklog() {
   isBacklogOpen.value = !isBacklogOpen.value

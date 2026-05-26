@@ -27,47 +27,52 @@
       </div>
     </header>
 
-    <!-- Repeating tasks from other anchor dates -->
-    <div
-      v-if="repeatingInstances.length > 0"
-      class="day-column__repeating-section"
-      role="list"
-      :aria-label="`Repeating tasks for ${dayName}`"
-    >
-      <div v-for="task in repeatingInstances" :key="task.id" role="listitem">
-        <TaskCard
-          :task="task"
-          :is-completed="isCompletedOnDate(task, date)"
-          @toggle-complete="handleToggleComplete"
-          @edit="openEditModal"
-          @delete="requestDelete"
-        />
-      </div>
-    </div>
+    <!-- Unified scroll area: repeating tasks + anchored draggable tasks -->
+    <div class="day-column__scroll-area">
 
-    <!-- Draggable task list (tasks anchored to this date) -->
-    <VueDraggable
-      class="day-column__task-list"
-      role="list"
-      :aria-label="`Tasks for ${dayName}`"
-      v-model="localList"
-      group="tasks"
-      ghost-class="task-card--ghost"
-      drag-class="sortable-drag"
-      :animation="150"
-      @update="onListChange"
-      @add="onListChange"
-    >
-      <div v-for="task in localList" :key="task.id" role="listitem">
-        <TaskCard
-          :task="task"
-          :is-completed="task.repeat ? isCompletedOnDate(task, date) : undefined"
-          @toggle-complete="handleToggleComplete"
-          @edit="openEditModal"
-          @delete="requestDelete"
-        />
+      <!-- Repeating tasks from other anchor dates -->
+      <div
+        v-if="repeatingInstances.length > 0"
+        class="day-column__repeating-section"
+        role="list"
+        :aria-label="`Repeating tasks for ${dayName}`"
+      >
+        <div v-for="task in repeatingInstances" :key="task.id" role="listitem">
+          <TaskCard
+            :task="task"
+            :is-completed="isCompletedOnDate(task, date)"
+            @toggle-complete="handleToggleComplete"
+            @edit="openEditModal"
+            @delete="requestDelete"
+          />
+        </div>
       </div>
-    </VueDraggable>
+
+      <!-- Draggable task list (tasks anchored to this date) -->
+      <VueDraggable
+        class="day-column__task-list"
+        role="list"
+        :aria-label="`Tasks for ${dayName}`"
+        v-model="localList"
+        group="tasks"
+        ghost-class="task-card--ghost"
+        drag-class="sortable-drag"
+        :animation="150"
+        @update="onListChange"
+        @add="onListChange"
+      >
+        <div v-for="task in localList" :key="task.id" role="listitem">
+          <TaskCard
+            :task="task"
+            :is-completed="task.repeat ? isCompletedOnDate(task, date) : undefined"
+            @toggle-complete="handleToggleComplete"
+            @edit="openEditModal"
+            @delete="requestDelete"
+          />
+        </div>
+      </VueDraggable>
+
+    </div>
 
     <!-- Edit modal (per-column instance) -->
     <TaskModal

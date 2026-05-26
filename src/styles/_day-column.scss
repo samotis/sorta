@@ -99,15 +99,13 @@
     flex-shrink: 0;
   }
 
-  // ── Task list ───────────────────────────────────────────────────────────────
-  &__task-list {
+  // ── Unified scroll area (repeating section + draggable list) ────────────────
+  &__scroll-area {
     flex: 1;
     overflow-y: auto;
     display: flex;
     flex-direction: column;
-    gap: $space-3;
     padding-bottom: $space-8;
-    min-height: 80px; // Always droppable even when empty
 
     scrollbar-width: thin;
     scrollbar-color: rgba(255, 255, 255, 0.12) transparent;
@@ -118,6 +116,14 @@
       background-color: rgba(255, 255, 255, 0.12);
       border-radius: 2px;
     }
+  }
+
+  // ── Task list ───────────────────────────────────────────────────────────────
+  &__task-list {
+    display: flex;
+    flex-direction: column;
+    gap: $space-3;
+    min-height: 80px; // Always droppable even when empty
   }
 
   // Repeating tasks from other anchor dates — non-draggable section
