@@ -43,6 +43,42 @@
           <!-- Data Management -->
           <section class="settings-modal__section" aria-labelledby="data-mgmt-label">
             <h2 class="settings-modal__section-label" id="data-mgmt-label">Data Management</h2>
+
+            <!-- Export -->
+            <div class="settings-modal__data-row">
+              <div>
+                <p class="settings-modal__row-title">Export a snapshot of your current task lists.</p>
+                <p class="settings-modal__row-desc">Tasks exported in .ics format.</p>
+              </div>
+              <button class="settings-modal__action-btn" @click="handleExport">
+                Export Tasks
+              </button>
+            </div>
+
+            <!-- Import -->
+            <div class="settings-modal__data-row">
+              <div>
+                <p class="settings-modal__row-title">Import a previous set of tasks.</p>
+                <p class="settings-modal__row-desc">Use an .ics file. This will add to, not overwrite your current tasks.</p>
+              </div>
+              <button class="settings-modal__action-btn" @click="triggerImport" :disabled="importing">
+                {{ importing ? 'Importing…' : 'Import Tasks' }}
+              </button>
+              <input
+                ref="fileInputRef"
+                type="file"
+                accept=".ics,text/calendar"
+                class="settings-modal__file-input"
+                @change="handleFileChange"
+              />
+            </div>
+
+            <!-- Import feedback -->
+            <p v-if="importMessage" class="settings-modal__import-message" :class="{ 'settings-modal__import-message--error': importError }" role="status">
+              {{ importMessage }}
+            </p>
+
+            <!-- Delete -->
             <div class="settings-modal__data-row">
               <div>
                 <p class="settings-modal__row-title">Delete all existing data.</p>
@@ -52,6 +88,7 @@
                 Delete Data
               </button>
             </div>
+
           </section>
 
         </div>
@@ -64,6 +101,8 @@
 import { ref, watch, nextTick } from 'vue'
 import { useConfirmDeleteAll } from '@/composables/useConfirmDeleteAll'
 import { useBackground } from '@/composables/useBackground'
+import { useTasks } from '@/composables/useTasks'
+import { downloadICS, importTasksFromICS } from '@/utils/ics'
 import bckgndFadeThumb   from '@/assets/bckgnd-fade01-thumb.jpg'
 import bckgndSolidThumb  from '@/assets/bckgnd-solid01-thumb.jpg'
 import bckgndImageThumb  from '@/assets/bkgnd-image01-thumb.jpg'
@@ -79,8 +118,13 @@ const emit = defineEmits(['update:modelValue'])
 
 const { requestDeleteAll } = useConfirmDeleteAll()
 const { selectedBg } = useBackground()
+const { tasks, importTasks } = useTasks()
 
-const modalEl = ref(null)
+const modalEl    = ref(null)
+const fileInputRef = ref(null)
+const importing  = ref(false)
+const importMessage = ref('')
+const importError   = ref(false)
 
 const backgrounds = [
   { id: 'gradient', label: 'Gradient background',      thumb: bckgndFadeThumb },
@@ -93,10 +137,52 @@ function close() {
   emit('update:modelValue', false)
 }
 
+// ── Export ────────────────────────────────────────────────────────────────────
+
+function handleExport() {
+  downloadICS(tasks.value)
+}
+
+// ── Import ────────────────────────────────────────────────────────────────────
+
+function triggerImport() {
+  importMessage.value = ''
+  fileInputRef.value?.click()
+}
+
+async function handleFileChange(e) {
+  const file = e.target.files?.[0]
+  if (!file) return
+
+  importing.value = true
+  importMessage.value = ''
+  importError.value = false
+
+  try {
+    const text = await file.text()
+    const newTasks = importTasksFromICS(text, tasks.value)
+
+    if (newTasks.length === 0) {
+      importMessage.value = 'No new tasks found (duplicates were skipped).'
+    } else {
+      importTasks(newTasks)
+      importMessage.value = `Imported ${newTasks.length} task${newTasks.length === 1 ? '' : 's'}.`
+    }
+  } catch (err) {
+    importError.value = true
+    importMessage.value = err.message || 'Import failed. Please check the file and try again.'
+  } finally {
+    importing.value = false
+    e.target.value = ''
+  }
+}
+
 watch(() => props.modelValue, async (val) => {
   if (val) {
     await nextTick()
     modalEl.value?.focus()
+    importMessage.value = ''
+    importError.value = false
   }
 })
 </script>

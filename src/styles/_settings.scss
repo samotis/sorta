@@ -172,6 +172,27 @@
     line-height: $line-height-base;
   }
 
+  &__action-btn {
+    flex-shrink: 0;
+    min-height: 40px;
+    min-width: 120px;
+    padding: $space-2 $space-5;
+    background: $color-accent-primary;
+    border-radius: $button-border-radius;
+    font-family: $font-family-base;
+    font-size: $font-size-sm;
+    font-weight: $font-weight-bold;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: $color-text-dark;
+    transition: opacity $transition-fast;
+
+    &:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+  }
+
   &__delete-btn {
     flex-shrink: 0;
     min-height: 40px;
@@ -186,5 +207,19 @@
     text-transform: uppercase;
     color: $color-text-dark;
     transition: opacity $transition-fast;
+  }
+
+  &__file-input {
+    display: none;
+  }
+
+  &__import-message {
+    font-size: $font-size-sm;
+    color: $color-accent-primary;
+    padding: 0 $space-2;
+
+    &--error {
+      color: $color-accent-danger;
+    }
   }
 }

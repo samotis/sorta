@@ -68,6 +68,39 @@
               </div>
             </div>
 
+            <!-- Repeat (only for tasks that have a scheduled date) -->
+            <div v-if="showRepeat" class="modal__field">
+              <label class="modal__label" :for="fieldId('repeat')">Repeat</label>
+              <div class="modal__select-wrapper">
+                <select
+                  :id="fieldId('repeat')"
+                  v-model="form.repeat"
+                  class="modal__select"
+                >
+                  <option :value="null">Does not repeat</option>
+                  <option value="daily">Daily</option>
+                  <option value="weekdays">Weekdays (Mon – Fri)</option>
+                  <option value="weekly">Weekly</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Day of week (only when repeat = weekly) -->
+            <div v-if="showRepeat && form.repeat === 'weekly'" class="modal__field">
+              <label class="modal__label" :for="fieldId('weekday')">On every</label>
+              <div class="modal__select-wrapper">
+                <select
+                  :id="fieldId('weekday')"
+                  v-model="form.weekRepeatDay"
+                  class="modal__select"
+                >
+                  <option v-for="opt in weekDayOptions" :key="opt.value" :value="opt.value">
+                    {{ opt.label }}
+                  </option>
+                </select>
+              </div>
+            </div>
+
             <!-- Remind Me -->
             <div class="modal__field">
               <label class="modal__remind-toggle">
@@ -155,7 +188,24 @@ const modalEl      = ref(null)
 const titleInputRef = ref(null)
 const todayStr     = todayString()
 
-const isEditing = computed(() => !!props.task)
+const isEditing  = computed(() => !!props.task)
+const showRepeat = computed(() => !!props.task?.scheduledDate)
+
+// ── Day-of-week helpers ───────────────────────────────────────────────────────
+const weekDayOptions = [
+  { value: 0, label: 'Sunday' },
+  { value: 1, label: 'Monday' },
+  { value: 2, label: 'Tuesday' },
+  { value: 3, label: 'Wednesday' },
+  { value: 4, label: 'Thursday' },
+  { value: 5, label: 'Friday' },
+  { value: 6, label: 'Saturday' },
+]
+
+function dayOfWeek(dateStr) {
+  const [y, m, d] = dateStr.split('-').map(Number)
+  return new Date(y, m - 1, d).getDay()
+}
 
 // ── Hour options ──────────────────────────────────────────────────────────────
 const hourOptions = [
@@ -200,6 +250,8 @@ const defaultForm = () => ({
   title:          '',
   description:    '',
   estimatedHours: 1.00,
+  repeat:         null,
+  weekRepeatDay:  1,
   hasReminder:    false,
   remindDate:     todayString(),
   remindTime:     '09:00',
@@ -212,6 +264,8 @@ function populateForm(task) {
   form.title          = task?.title          ?? ''
   form.description    = task?.description    ?? ''
   form.estimatedHours = task?.estimatedHours ?? 1.00
+  form.repeat         = task?.repeat         ?? null
+  form.weekRepeatDay  = task?.scheduledDate  ? dayOfWeek(task.scheduledDate) : 1
   form.hasReminder    = !!task?.remindAt
   if (task?.remindAt) {
     const d = new Date(task.remindAt)
@@ -265,15 +319,31 @@ function handleSave() {
     remindAt = new Date(`${form.remindDate}T${form.remindTime}:00`).toISOString()
   }
 
-  emit('save', {
-    title:          form.title,
-    description:    form.description,
-    estimatedHours: form.estimatedHours,
+  const fields = {
+    title:             form.title,
+    description:       form.description,
+    estimatedHours:    form.estimatedHours,
+    repeat:            showRepeat.value ? form.repeat : null,
     remindAt,
-    // Reset dismissed flag if the reminder was changed
     reminderDismissed: false,
-  })
+  }
 
+  // Shift scheduledDate to the new day of week when repeat is weekly
+  if (showRepeat.value && form.repeat === 'weekly' && props.task?.scheduledDate) {
+    const currentDow = dayOfWeek(props.task.scheduledDate)
+    if (form.weekRepeatDay !== currentDow) {
+      const diff = (form.weekRepeatDay - currentDow + 7) % 7
+      const [y, m, d] = props.task.scheduledDate.split('-').map(Number)
+      const shifted = new Date(y, m - 1, d + diff)
+      fields.scheduledDate = [
+        shifted.getFullYear(),
+        String(shifted.getMonth() + 1).padStart(2, '0'),
+        String(shifted.getDate()).padStart(2, '0'),
+      ].join('-')
+    }
+  }
+
+  emit('save', fields)
   handleClose()
 }
 
