@@ -253,6 +253,7 @@ function parseVEVENT(vevent, existingUids) {
   const completedDates = completedDatesRaw ? completedDatesRaw.split(',').filter(Boolean) : []
 
   const remindAt = extractRemindAt(vevent)
+  const reminderDismissed = remindAt ? new Date(remindAt) <= new Date() : false
 
   return {
     id,
@@ -266,7 +267,7 @@ function parseVEVENT(vevent, existingUids) {
     repeat,
     completedDates,
     remindAt,
-    reminderDismissed: false,
+    reminderDismissed,
     createdAt,
     ...(!isSorta && uid ? { sourceUid: uid } : {}),
   }
@@ -292,6 +293,7 @@ function parseVTODO(vtodo, existingUids) {
   const position = parseInt(vtodo.getFirstPropertyValue('x-sorta-position') || '0', 10) || 0
 
   const remindAt = extractRemindAt(vtodo)
+  const reminderDismissed = remindAt ? new Date(remindAt) <= new Date() : false
 
   return {
     id,
@@ -305,7 +307,7 @@ function parseVTODO(vtodo, existingUids) {
     repeat: null,
     completedDates: [],
     remindAt,
-    reminderDismissed: false,
+    reminderDismissed,
     createdAt,
     ...(!isSorta && uid ? { sourceUid: uid } : {}),
   }
