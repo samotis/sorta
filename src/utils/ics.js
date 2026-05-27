@@ -271,6 +271,7 @@ function parseVEVENT(vevent, existingUids) {
     completedDates,
     remindAt,
     reminderDismissed,
+    dismissedReminderDates: [],
     createdAt,
     ...(!isSorta && uid ? { sourceUid: uid } : {}),
   }
@@ -312,6 +313,7 @@ function parseVTODO(vtodo, existingUids) {
     completedDates: [],
     remindAt,
     reminderDismissed,
+    dismissedReminderDates: [],
     createdAt,
     ...(!isSorta && uid ? { sourceUid: uid } : {}),
   }

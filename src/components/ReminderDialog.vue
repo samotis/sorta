@@ -11,12 +11,12 @@
       >
         <div class="reminder-dialog" ref="dialogEl">
           <p class="reminder-dialog__eyebrow">Reminder</p>
-          <h2 class="reminder-dialog__title" id="reminder-title">{{ activeReminder.title }}</h2>
+          <h2 class="reminder-dialog__title" id="reminder-title">{{ activeReminder.task.title }}</h2>
           <p
-            v-if="activeReminder.description"
+            v-if="activeReminder.task.description"
             class="reminder-dialog__description"
             id="reminder-desc"
-          >{{ activeReminder.description }}</p>
+          >{{ activeReminder.task.description }}</p>
           <button
             class="reminder-dialog__dismiss-btn"
             ref="dismissBtnRef"
@@ -33,14 +33,18 @@
 <script setup>
 import { ref, watch, nextTick } from 'vue'
 import { useReminders } from '@/composables/useReminders'
+import dingSound from '@/assets/ding-sound.mp3'
 
 const { activeReminder, dismissReminder } = useReminders()
 const dialogEl    = ref(null)
 const dismissBtnRef = ref(null)
 
-// Focus the dismiss button when the dialog appears
+const dingAudio = new Audio(dingSound)
+
 watch(activeReminder, async (val) => {
   if (val) {
+    dingAudio.currentTime = 0
+    dingAudio.play().catch(() => {})
     await nextTick()
     dismissBtnRef.value?.focus()
   }

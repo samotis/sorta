@@ -320,12 +320,13 @@ function handleSave() {
   }
 
   const fields = {
-    title:             form.title,
-    description:       form.description,
-    estimatedHours:    form.estimatedHours,
-    repeat:            showRepeat.value ? form.repeat : null,
+    title:                  form.title,
+    description:            form.description,
+    estimatedHours:         form.estimatedHours,
+    repeat:                 showRepeat.value ? form.repeat : null,
     remindAt,
-    reminderDismissed: false,
+    reminderDismissed:      false,
+    dismissedReminderDates: [],
   }
 
   // Shift scheduledDate to the new day of week when repeat is weekly

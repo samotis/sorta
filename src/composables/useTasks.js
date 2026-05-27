@@ -11,9 +11,10 @@
  *   scheduledDate:       String|null  ('YYYY-MM-DD' or null = unscheduled)
  *   isBacklog:           Boolean  (true = in the sidebar backlog section)
  *   position:            Number   (sort order within its list)
- *   remindAt:            String|null  (ISO 8601 datetime)
- *   reminderDismissed:   Boolean
- *   createdAt:           String   (ISO 8601 datetime)
+ *   remindAt:                String|null  (ISO 8601 datetime)
+ *   reminderDismissed:       Boolean  (for non-repeating tasks only)
+ *   dismissedReminderDates:  String[]  (['YYYY-MM-DD', …] for per-day reminder dismissal on repeating tasks)
+ *   createdAt:               String   (ISO 8601 datetime)
  *   repeat:              String|null  ('daily' | 'weekdays' | 'weekly' | null)
  *   completedDates:      String[]  (['YYYY-MM-DD', …] for per-day completion on repeating tasks)
  *   isLife:              Boolean  (true = in the Life section of a day column)
@@ -102,6 +103,7 @@ function migrateTask(t) {
   if (!('repeat' in t)) t.repeat = null
   if (!('completedDates' in t)) t.completedDates = []
   if (!('isLife' in t)) t.isLife = false
+  if (!('dismissedReminderDates' in t)) t.dismissedReminderDates = []
   return t
 }
 
@@ -153,6 +155,7 @@ export function useTasks() {
       position: scheduledDate ? nextPosition(scheduledDate) : firstPosition(),
       remindAt: remindAt || null,
       reminderDismissed: false,
+      dismissedReminderDates: [],
       createdAt: new Date().toISOString(),
       repeat: repeat || null,
       completedDates: [],
