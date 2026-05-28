@@ -95,6 +95,61 @@
 
           </section>
 
+          <!-- Connected Calendars -->
+          <section class="settings-modal__section" aria-labelledby="calendars-label">
+            <h2 class="settings-modal__section-label" id="calendars-label">Connected Calendars</h2>
+
+            <div v-for="cal in calendars" :key="cal.id" class="settings-modal__data-row">
+              <div style="flex-grow: 1;">
+                <p class="settings-modal__row-title">{{ cal.name || 'Calendar' }}</p>
+                <p class="settings-modal__row-desc">
+                  {{ cal.error ? cal.error : cal.lastSynced ? `Last synced ${formatRelativeTime(cal.lastSynced)}` : 'Syncing…' }}
+                </p>
+              </div>
+              <button
+                class="settings-modal__action-btn"
+                :disabled="syncingId === cal.id"
+                @click="handleSync(cal.id)"
+              >
+                {{ syncingId === cal.id ? 'Syncing…' : 'Sync' }}
+              </button>
+              <button class="settings-modal__delete-btn" @click="handleRemoveCalendar(cal.id)">
+                Remove
+              </button>
+            </div>
+
+            <div class="settings-modal__data-row">
+              <input
+                v-model="newCalendarUrl"
+                type="url"
+                class="settings-modal__calendar-url-input"
+                placeholder="Paste iCal URL from Google Calendar…"
+                aria-label="Google Calendar iCal URL"
+                @keydown.enter="handleAddCalendar"
+              />
+              <button
+                class="settings-modal__action-btn"
+                :disabled="!newCalendarUrl.trim() || adding"
+                @click="handleAddCalendar"
+              >
+                {{ adding ? 'Connecting…' : 'Add Calendar' }}
+              </button>
+            </div>
+
+            <p class="settings-modal__row-desc" style="padding: 0 6px">
+              In Google Calendar: Settings → [calendar name] → "Secret address in iCal format".
+            </p>
+
+            <p
+              v-if="calendarMessage"
+              class="settings-modal__import-message"
+              :class="{ 'settings-modal__import-message--error': calendarError }"
+              role="status"
+            >
+              {{ calendarMessage }}
+            </p>
+          </section>
+
           <!-- Data Management -->
           <section class="settings-modal__section" aria-labelledby="data-mgmt-label">
             <h2 class="settings-modal__section-label" id="data-mgmt-label">Data Management</h2>
@@ -160,6 +215,7 @@ import { useTasks } from '@/composables/useTasks'
 import { useLifeSection } from '@/composables/useLifeSection'
 import { useDailyBudget } from '@/composables/useDailyBudget'
 import { useCompactView } from '@/composables/useCompactView'
+import { useCalendars } from '@/composables/useCalendars'
 import { downloadICS, importTasksFromICS } from '@/utils/ics'
 import bckgndFadeThumb   from '@/assets/bckgnd-fade01-thumb.jpg'
 import bckgndSolidThumb  from '@/assets/bckgnd-solid01-thumb.jpg'
@@ -180,6 +236,63 @@ const { tasks, importTasks } = useTasks()
 const { isLifeVisible, toggleLifeVisible } = useLifeSection()
 const { dailyBudget } = useDailyBudget()
 const { isCompact } = useCompactView()
+const { calendars, addCalendar, removeCalendar, syncCalendar } = useCalendars()
+
+const newCalendarUrl = ref('')
+const adding         = ref(false)
+const syncingId      = ref(null)
+const calendarMessage = ref('')
+const calendarError   = ref(false)
+
+function formatRelativeTime(isoStr) {
+  const diff = Date.now() - new Date(isoStr).getTime()
+  const mins = Math.floor(diff / 60000)
+  if (mins < 1) return 'just now'
+  if (mins < 60) return `${mins}m ago`
+  const hrs = Math.floor(mins / 60)
+  if (hrs < 24) return `${hrs}h ago`
+  return `${Math.floor(hrs / 24)}d ago`
+}
+
+async function handleAddCalendar() {
+  const url = newCalendarUrl.value.trim()
+  if (!url) return
+  calendarMessage.value = ''
+  calendarError.value   = false
+  adding.value = true
+  try {
+    await addCalendar(url)
+    newCalendarUrl.value  = ''
+    calendarMessage.value = 'Calendar connected and synced.'
+  } catch (err) {
+    calendarError.value   = true
+    calendarMessage.value = err.message || 'Failed to connect calendar.'
+  } finally {
+    adding.value = false
+  }
+}
+
+async function handleSync(calendarId) {
+  syncingId.value       = calendarId
+  calendarMessage.value = ''
+  calendarError.value   = false
+  try {
+    await syncCalendar(calendarId)
+    calendarMessage.value = 'Calendar synced.'
+  } catch (err) {
+    calendarError.value   = true
+    calendarMessage.value = err.message || 'Sync failed.'
+  } finally {
+    syncingId.value = null
+  }
+}
+
+function handleRemoveCalendar(calendarId) {
+  const cal = calendars.value.find(c => c.id === calendarId)
+  const name = cal?.name || 'this calendar'
+  if (!window.confirm(`Remove "${name}"? All synced events will be deleted.`)) return
+  removeCalendar(calendarId)
+}
 
 function handleBudgetChange(e) {
   const n = parseFloat(e.target.value)
@@ -209,7 +322,7 @@ function close() {
 // ── Export ────────────────────────────────────────────────────────────────────
 
 function handleExport() {
-  downloadICS(tasks.value)
+  downloadICS(tasks.value.filter(t => !t.isCalendarEvent))
 }
 
 // ── Import ────────────────────────────────────────────────────────────────────
@@ -250,8 +363,10 @@ watch(() => props.modelValue, async (val) => {
   if (val) {
     await nextTick()
     modalEl.value?.focus()
-    importMessage.value = ''
-    importError.value = false
+    importMessage.value   = ''
+    importError.value     = false
+    calendarMessage.value = ''
+    calendarError.value   = false
   }
 })
 </script>

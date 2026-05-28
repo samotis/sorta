@@ -18,17 +18,38 @@
  *   repeat:              String|null  ('daily' | 'weekdays' | 'weekly' | null)
  *   completedDates:      String[]  (['YYYY-MM-DD', …] for per-day completion on repeating tasks)
  *   isLife:              Boolean  (true = in the Life section of a day column)
+ *   isCalendarEvent:     Boolean  (true = synced from an external calendar; title/desc are read-only)
+ *   calendarId:          String|null  (UUID of the source calendar config in sorta_calendars)
+ *   calendarUid:         String|null  (event UID from the iCal feed; used for sync matching)
  * }
  */
 
 import { ref, watch } from 'vue'
 import DOMPurify from 'dompurify'
 
-const STORAGE_KEY = 'sorta_v1'
+const STORAGE_KEY      = 'sorta_v1'
+const SUPPRESSED_KEY   = 'sorta_suppressed_cal_events'
 
 // ─── Shared singleton state ───────────────────────────────────────────────────
 const tasks = ref([])
 let _initialized = false
+
+// ─── Suppressed calendar event UIDs ──────────────────────────────────────────
+// Shape: { [calendarId]: string[] }  — UIDs the user has manually deleted
+let _suppressed = {}
+try { _suppressed = JSON.parse(localStorage.getItem(SUPPRESSED_KEY) || '{}') } catch { _suppressed = {} }
+
+function _saveSuppressed() {
+  localStorage.setItem(SUPPRESSED_KEY, JSON.stringify(_suppressed))
+}
+
+function _suppressCalendarEvent(calendarId, calendarUid) {
+  if (!_suppressed[calendarId]) _suppressed[calendarId] = []
+  if (!_suppressed[calendarId].includes(calendarUid)) {
+    _suppressed[calendarId].push(calendarUid)
+    _saveSuppressed()
+  }
+}
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
@@ -53,6 +74,7 @@ export function taskOccursOn(task, dateStr) {
   if (!task.scheduledDate) return false
   if (!task.repeat) return task.scheduledDate === dateStr
   if (dateStr < task.scheduledDate) return false
+  if (task.repeatUntil && dateStr > task.repeatUntil) return false
   if (task.repeat === 'daily') return true
   if (task.repeat === 'weekdays') {
     const dow = _dayOfWeek(dateStr)
@@ -104,6 +126,10 @@ function migrateTask(t) {
   if (!('completedDates' in t)) t.completedDates = []
   if (!('isLife' in t)) t.isLife = false
   if (!('dismissedReminderDates' in t)) t.dismissedReminderDates = []
+  if (!('isCalendarEvent' in t)) t.isCalendarEvent = false
+  if (!('calendarId' in t)) t.calendarId = null
+  if (!('calendarUid' in t)) t.calendarUid = null
+  if (!('repeatUntil' in t)) t.repeatUntil = null
   return t
 }
 
@@ -158,7 +184,11 @@ export function useTasks() {
       dismissedReminderDates: [],
       createdAt: new Date().toISOString(),
       repeat: repeat || null,
+      repeatUntil: null,
       completedDates: [],
+      isCalendarEvent: false,
+      calendarId: null,
+      calendarUid: null,
     }
 
     tasks.value.push(task)
@@ -187,13 +217,20 @@ export function useTasks() {
   function deleteTask(id) {
     const idx = tasks.value.findIndex(t => t.id === id)
     if (idx === -1) return
+    const task = tasks.value[idx]
+    if (task.isCalendarEvent && task.calendarId && task.calendarUid) {
+      _suppressCalendarEvent(task.calendarId, task.calendarUid)
+    }
     tasks.value.splice(idx, 1)
   }
 
   function deleteAllTasks() {
     tasks.value = []
+    _suppressed = {}
     localStorage.removeItem('sorta_backlog_open')
     localStorage.removeItem('sorta_life_open')
+    localStorage.removeItem('sorta_calendars')
+    localStorage.removeItem(SUPPRESSED_KEY)
   }
 
   function toggleComplete(id) {
@@ -274,6 +311,71 @@ export function useTasks() {
       .reduce((sum, t) => sum + t.estimatedHours, 0)
   }
 
+  function syncCalendarEvents(calendarId, incomingEvents) {
+    // Remove any duplicate tasks (same calendarId + calendarUid) that may have accumulated
+    const seenUids = new Set()
+    for (const t of tasks.value.filter(t => t.calendarId === calendarId)) {
+      if (seenUids.has(t.calendarUid)) deleteTask(t.id)
+      else seenUids.add(t.calendarUid)
+    }
+
+    const suppressed = new Set(_suppressed[calendarId] || [])
+    const filtered   = incomingEvents.filter(e => !suppressed.has(e.calendarUid))
+
+    const existing = tasks.value.filter(t => t.calendarId === calendarId)
+    const byUid    = new Map(existing.map(t => [t.calendarUid, t]))
+    const incoming = new Set(filtered.map(e => e.calendarUid))
+
+    for (const event of filtered) {
+      const match = byUid.get(event.calendarUid)
+      if (match) {
+        updateTask(match.id, {
+          title:          event.title,
+          description:    event.description,
+          scheduledDate:  event.scheduledDate,
+          estimatedHours: event.estimatedHours,
+          repeat:         event.repeat,
+          repeatUntil:    event.repeatUntil ?? null,
+        })
+      } else {
+        tasks.value.push({
+          id:                     crypto.randomUUID(),
+          title:                  sanitize(event.title),
+          description:            sanitize(event.description),
+          estimatedHours:         clampHours(event.estimatedHours),
+          completed:              false,
+          scheduledDate:          event.scheduledDate || null,
+          isBacklog:              false,
+          isLife:                 false,
+          position:               event.scheduledDate ? nextPosition(event.scheduledDate) : firstPosition(),
+          remindAt:               null,
+          reminderDismissed:      false,
+          dismissedReminderDates: [],
+          createdAt:              new Date().toISOString(),
+          repeat:                 event.repeat || null,
+          repeatUntil:            event.repeatUntil ?? null,
+          completedDates:         [],
+          isCalendarEvent:        true,
+          calendarId:             event.calendarId,
+          calendarUid:            event.calendarUid,
+        })
+      }
+    }
+
+    for (const t of existing) {
+      if (!incoming.has(t.calendarUid)) deleteTask(t.id)
+    }
+  }
+
+  function deleteCalendarTasks(calendarId) {
+    tasks.value
+      .filter(t => t.calendarId === calendarId)
+      .map(t => t.id)
+      .forEach(id => deleteTask(id))
+    delete _suppressed[calendarId]
+    _saveSuppressed()
+  }
+
   function importTasks(newTasks) {
     for (const task of newTasks) {
       tasks.value.push({
@@ -300,5 +402,7 @@ export function useTasks() {
     totalHoursForDate,
     completedHoursForDate,
     importTasks,
+    syncCalendarEvents,
+    deleteCalendarTasks,
   }
 }

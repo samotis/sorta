@@ -51,6 +51,13 @@
             :aria-label="`Repeats ${task.repeat}`"
             alt=""
           />
+          <img
+            v-if="task.isCalendarEvent"
+            src="@/assets/calendar.svg"
+            class="task-card__calendar-icon"
+            aria-label="From connected calendar"
+            alt=""
+          />
         </div>
       </div>
     </div>
@@ -58,6 +65,7 @@
     <!-- Hover / focus actions -->
     <div class="task-card__actions" role="group" :aria-label="`Actions for ${task.title}`">
       <button
+        v-if="!task.isCalendarEvent"
         class="task-card__action-btn"
         aria-label="Edit task"
         @click.stop="emit('edit', task)"
