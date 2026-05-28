@@ -4,6 +4,7 @@
   <ReminderDialog />
   <ConfirmDeleteDialog />
   <ConfirmDeleteAllDialog />
+  <MobileGate />
 </template>
 
 <script setup>
@@ -12,4 +13,5 @@ import CalendarView from '@/components/CalendarView.vue'
 import ReminderDialog from '@/components/ReminderDialog.vue'
 import ConfirmDeleteDialog from '@/components/ConfirmDeleteDialog.vue'
 import ConfirmDeleteAllDialog from '@/components/ConfirmDeleteAllDialog.vue'
+import MobileGate from '@/components/MobileGate.vue'
 </script>

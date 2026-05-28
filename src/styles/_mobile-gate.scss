@@ -1,0 +1,52 @@
+// =============================================================================
+// SORTA — Mobile Gate (shown below 768px instead of the full app)
+// =============================================================================
+@use 'variables' as *;
+
+.mobile-gate {
+  display: none;
+
+  @media (max-width: 767px) {
+    display: flex;
+    position: fixed;
+    inset: 0;
+    align-items: center;
+    justify-content: center;
+    padding: $space-6;
+    z-index: 200;
+  }
+}
+
+.mobile-gate__card {
+  width: 100%;
+  height: 100%;
+  background: $color-bg-sidebar;
+  border-radius: $modal-border-radius;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: $space-6;
+  padding: $space-8 $space-10 $space-13 $space-10;
+  text-align: center;
+}
+
+.mobile-gate__logo {
+  width: 160px;
+  height: auto;
+}
+
+.mobile-gate__body {
+  font-size: $font-size-md;
+  color: $color-text-secondary;
+  line-height: $line-height-base;
+  max-width: 300px;
+}
+
+// Hide the main app UI on mobile so only the gate shows
+@media (max-width: 767px) {
+  .sidebar,
+  .calendar {
+    display: none !important;
+  }
+}
