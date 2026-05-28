@@ -176,6 +176,15 @@
   }
 }
 
+// ── Compact view overrides ───────────────────────────────────────────────────
+.compact-view .task-card {
+  padding: $space-3 $space-4 $space-4;
+
+  &__title       { font-size: 1.0625rem; } // 17px (–1px)
+  &__description { font-size: 0.8125rem; } // 13px (–1px)
+  &__hours-badge { font-size: 0.8125rem; } // 13px (–1px)
+}
+
 // SortableJS global drag classes
 .sortable-drag  { opacity: 0 !important; }
 

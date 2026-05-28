@@ -152,6 +152,7 @@
   &__backlog-list {
     display: flex;
     flex-direction: column;
+    flex-shrink: 0;
     gap: $space-3;
     min-height: 60px; // Provides a visible drop target when empty
   }
@@ -168,5 +169,13 @@
       border: 1.5px dashed $color-border;
       border-radius: $button-border-radius;
     }
+  }
+}
+
+// ── Compact view overrides ───────────────────────────────────────────────────
+.compact-view .sidebar {
+  &__task-list,
+  &__backlog-list {
+    gap: 6px;
   }
 }

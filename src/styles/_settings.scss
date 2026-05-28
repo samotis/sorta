@@ -239,6 +239,34 @@
     }
   }
 
+  &__budget-input {
+    flex-shrink: 0;
+    width: 80px;
+    min-height: 40px;
+    padding: $space-2 $space-3;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid $color-border;
+    border-radius: $button-border-radius;
+    color: $color-text-primary;
+    font-family: $font-family-base;
+    font-size: $font-size-md;
+    font-weight: $font-weight-bold;
+    text-align: center;
+
+    &:focus {
+      outline: 2px solid $color-accent-primary;
+      outline-offset: 2px;
+    }
+
+    &::-webkit-outer-spin-button,
+    &::-webkit-inner-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
+    -moz-appearance: textfield;
+    appearance: textfield;
+  }
+
   &__file-input {
     display: none;
   }

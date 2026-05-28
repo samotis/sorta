@@ -212,3 +212,12 @@
 
   }
 }
+
+// ── Compact view overrides ───────────────────────────────────────────────────
+.compact-view .day-column {
+  &__task-list,
+  &__life-list,
+  &__repeating-section {
+    gap: 6px;
+  }
+}

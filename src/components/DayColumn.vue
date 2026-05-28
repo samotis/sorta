@@ -14,9 +14,9 @@
         <span
           class="day-column__hours"
           :class="{ 'day-column__hours--over-budget': isOverBudget }"
-          :aria-label="`${totalHours.toFixed(2)} of 8 hours scheduled`"
+          :aria-label="`${totalHours.toFixed(2)} of ${dailyBudget} hours scheduled`"
         >
-          {{ totalHours.toFixed(2) }} / {{ DAILY_BUDGET.toFixed(2) }}
+          {{ totalHours.toFixed(2) }} / {{ Number(dailyBudget).toFixed(2) }}
         </span>
       </div>
 
@@ -130,6 +130,7 @@ import { useTasks, taskOccursOn, isCompletedOnDate } from '@/composables/useTask
 import { useConfirmDelete } from '@/composables/useConfirmDelete'
 import { formatDayName, formatShortDate, todayString } from '@/composables/useCalendar'
 import { useLifeSection } from '@/composables/useLifeSection'
+import { useDailyBudget } from '@/composables/useDailyBudget'
 import TaskCard from './TaskCard.vue'
 import TaskModal from './TaskModal.vue'
 
@@ -140,7 +141,7 @@ const props = defineProps({
   },
 })
 
-const DAILY_BUDGET = 8
+const { dailyBudget } = useDailyBudget()
 
 const {
   tasks,
@@ -165,7 +166,7 @@ const date = props.date
 
 const totalHours     = computed(() => totalHoursForDate(props.date))
 const completedHours = computed(() => completedHoursForDate(props.date))
-const isOverBudget   = computed(() => totalHours.value > DAILY_BUDGET)
+const isOverBudget   = computed(() => totalHours.value > dailyBudget.value)
 const progressPct    = computed(() => {
   if (totalHours.value === 0) return 0
   return Math.min(Math.round((completedHours.value / totalHours.value) * 100), 100)

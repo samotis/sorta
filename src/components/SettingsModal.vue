@@ -59,6 +59,40 @@
                 <span class="settings-modal__toggle-knob"></span>
               </button>
             </div>
+
+            <div class="settings-modal__data-row">
+              <div>
+                <p class="settings-modal__row-title">Compact view</p>
+                <p class="settings-modal__row-desc">A denser layout. See more with less scrolling.</p>
+              </div>
+              <button
+                class="settings-modal__toggle"
+                :class="{ 'settings-modal__toggle--on': isCompact }"
+                :aria-pressed="isCompact"
+                aria-label="Toggle compact view"
+                @click="isCompact = !isCompact"
+              >
+                <span class="settings-modal__toggle-knob"></span>
+              </button>
+            </div>
+
+            <div class="settings-modal__data-row">
+              <div>
+                <p class="settings-modal__row-title">Daily hours budget</p>
+                <p class="settings-modal__row-desc">Sets the target shown in each day column's header. Tasks over this amount are highlighted.</p>
+              </div>
+              <input
+                type="number"
+                class="settings-modal__budget-input"
+                :value="dailyBudget"
+                min="0.25"
+                max="24"
+                step="0.25"
+                aria-label="Daily hours budget"
+                @change="handleBudgetChange"
+              />
+            </div>
+
           </section>
 
           <!-- Data Management -->
@@ -124,6 +158,8 @@ import { useConfirmDeleteAll } from '@/composables/useConfirmDeleteAll'
 import { useBackground } from '@/composables/useBackground'
 import { useTasks } from '@/composables/useTasks'
 import { useLifeSection } from '@/composables/useLifeSection'
+import { useDailyBudget } from '@/composables/useDailyBudget'
+import { useCompactView } from '@/composables/useCompactView'
 import { downloadICS, importTasksFromICS } from '@/utils/ics'
 import bckgndFadeThumb   from '@/assets/bckgnd-fade01-thumb.jpg'
 import bckgndSolidThumb  from '@/assets/bckgnd-solid01-thumb.jpg'
@@ -142,6 +178,16 @@ const { requestDeleteAll } = useConfirmDeleteAll()
 const { selectedBg } = useBackground()
 const { tasks, importTasks } = useTasks()
 const { isLifeVisible, toggleLifeVisible } = useLifeSection()
+const { dailyBudget } = useDailyBudget()
+const { isCompact } = useCompactView()
+
+function handleBudgetChange(e) {
+  const n = parseFloat(e.target.value)
+  if (!isNaN(n) && n >= 0.25) {
+    dailyBudget.value = Math.min(Math.max(Math.round(n * 4) / 4, 0.25), 24)
+  }
+  e.target.value = dailyBudget.value
+}
 
 const modalEl    = ref(null)
 const fileInputRef = ref(null)
