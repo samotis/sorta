@@ -14,4 +14,7 @@ import ReminderDialog from '@/components/ReminderDialog.vue'
 import ConfirmDeleteDialog from '@/components/ConfirmDeleteDialog.vue'
 import ConfirmDeleteAllDialog from '@/components/ConfirmDeleteAllDialog.vue'
 import MobileGate from '@/components/MobileGate.vue'
+import { useDateRefresh } from '@/composables/useDateRefresh'
+
+useDateRefresh()
 </script>
