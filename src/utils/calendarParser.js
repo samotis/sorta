@@ -125,5 +125,13 @@ export function parseCalendarEvents(icsText, calendarId) {
     })
   }
 
-  return { calendarName, events }
+  // Some feeds list recurring occurrences as separate VEVENTs with the same UID — keep first only
+  const seen = new Set()
+  const deduped = events.filter(e => {
+    if (seen.has(e.calendarUid)) return false
+    seen.add(e.calendarUid)
+    return true
+  })
+
+  return { calendarName, events: deduped }
 }

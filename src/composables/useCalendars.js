@@ -9,6 +9,7 @@ const calendars = ref(stored ? JSON.parse(stored) : [])
 watch(calendars, val => localStorage.setItem(STORAGE_KEY, JSON.stringify(val)), { deep: true })
 
 let _intervalStarted = false
+const _syncing = new Set()
 
 function _ensureInterval() {
   if (_intervalStarted) return
@@ -17,8 +18,11 @@ function _ensureInterval() {
 }
 
 async function _syncCalendar(calendarId) {
+  if (_syncing.has(calendarId)) return
+  _syncing.add(calendarId)
+
   const calendar = calendars.value.find(c => c.id === calendarId)
-  if (!calendar) return
+  if (!calendar) { _syncing.delete(calendarId); return }
 
   const { syncCalendarEvents } = useTasks()
 
@@ -41,6 +45,8 @@ async function _syncCalendar(calendarId) {
       c.id === calendarId ? { ...c, error: err.message } : c
     )
     throw err
+  } finally {
+    _syncing.delete(calendarId)
   }
 }
 
