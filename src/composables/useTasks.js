@@ -18,6 +18,9 @@
  *   repeat:              String|null  ('daily' | 'weekdays' | 'weekly' | null)
  *   completedDates:      String[]  (['YYYY-MM-DD', …] for per-day completion on repeating tasks)
  *   isLife:              Boolean  (true = in the Life section of a day column)
+ *   isCalendarEvent:     Boolean  (true = synced from an external calendar; title/desc are read-only)
+ *   calendarId:          String|null  (UUID of the source calendar config in sorta_calendars)
+ *   calendarUid:         String|null  (event UID from the iCal feed; used for sync matching)
  * }
  */
 
@@ -53,6 +56,7 @@ export function taskOccursOn(task, dateStr) {
   if (!task.scheduledDate) return false
   if (!task.repeat) return task.scheduledDate === dateStr
   if (dateStr < task.scheduledDate) return false
+  if (task.repeatUntil && dateStr > task.repeatUntil) return false
   if (task.repeat === 'daily') return true
   if (task.repeat === 'weekdays') {
     const dow = _dayOfWeek(dateStr)
@@ -104,6 +108,10 @@ function migrateTask(t) {
   if (!('completedDates' in t)) t.completedDates = []
   if (!('isLife' in t)) t.isLife = false
   if (!('dismissedReminderDates' in t)) t.dismissedReminderDates = []
+  if (!('isCalendarEvent' in t)) t.isCalendarEvent = false
+  if (!('calendarId' in t)) t.calendarId = null
+  if (!('calendarUid' in t)) t.calendarUid = null
+  if (!('repeatUntil' in t)) t.repeatUntil = null
   return t
 }
 
@@ -158,7 +166,11 @@ export function useTasks() {
       dismissedReminderDates: [],
       createdAt: new Date().toISOString(),
       repeat: repeat || null,
+      repeatUntil: null,
       completedDates: [],
+      isCalendarEvent: false,
+      calendarId: null,
+      calendarUid: null,
     }
 
     tasks.value.push(task)
@@ -194,6 +206,7 @@ export function useTasks() {
     tasks.value = []
     localStorage.removeItem('sorta_backlog_open')
     localStorage.removeItem('sorta_life_open')
+    localStorage.removeItem('sorta_calendars')
   }
 
   function toggleComplete(id) {
@@ -274,6 +287,59 @@ export function useTasks() {
       .reduce((sum, t) => sum + t.estimatedHours, 0)
   }
 
+  function syncCalendarEvents(calendarId, incomingEvents) {
+    const existing = tasks.value.filter(t => t.calendarId === calendarId)
+    const byUid    = new Map(existing.map(t => [t.calendarUid, t]))
+    const incoming = new Set(incomingEvents.map(e => e.calendarUid))
+
+    for (const event of incomingEvents) {
+      const match = byUid.get(event.calendarUid)
+      if (match) {
+        updateTask(match.id, {
+          title:          event.title,
+          description:    event.description,
+          scheduledDate:  event.scheduledDate,
+          estimatedHours: event.estimatedHours,
+          repeat:         event.repeat,
+          repeatUntil:    event.repeatUntil ?? null,
+        })
+      } else {
+        tasks.value.push({
+          id:                     crypto.randomUUID(),
+          title:                  sanitize(event.title),
+          description:            sanitize(event.description),
+          estimatedHours:         clampHours(event.estimatedHours),
+          completed:              false,
+          scheduledDate:          event.scheduledDate || null,
+          isBacklog:              false,
+          isLife:                 false,
+          position:               event.scheduledDate ? nextPosition(event.scheduledDate) : firstPosition(),
+          remindAt:               null,
+          reminderDismissed:      false,
+          dismissedReminderDates: [],
+          createdAt:              new Date().toISOString(),
+          repeat:                 event.repeat || null,
+          repeatUntil:            event.repeatUntil ?? null,
+          completedDates:         [],
+          isCalendarEvent:        true,
+          calendarId:             event.calendarId,
+          calendarUid:            event.calendarUid,
+        })
+      }
+    }
+
+    for (const t of existing) {
+      if (!incoming.has(t.calendarUid)) deleteTask(t.id)
+    }
+  }
+
+  function deleteCalendarTasks(calendarId) {
+    tasks.value
+      .filter(t => t.calendarId === calendarId)
+      .map(t => t.id)
+      .forEach(id => deleteTask(id))
+  }
+
   function importTasks(newTasks) {
     for (const task of newTasks) {
       tasks.value.push({
@@ -300,5 +366,7 @@ export function useTasks() {
     totalHoursForDate,
     completedHoursForDate,
     importTasks,
+    syncCalendarEvents,
+    deleteCalendarTasks,
   }
 }
