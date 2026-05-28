@@ -19,9 +19,11 @@ export const handler = async (event) => {
       body: text,
     }
   } catch (err) {
+    const cause = err.cause ? ` (${err.cause.code || err.cause.message})` : ''
+    console.error('[ical-proxy] fetch error:', err.message, err.cause ?? '')
     return {
       statusCode: 502,
-      body: `Failed to fetch calendar: ${err.message}`,
+      body: `Failed to fetch calendar: ${err.message}${cause}`,
     }
   }
 }
